@@ -2,6 +2,7 @@
 # ----- Importa e inicia pacotes
 import pygame
 import random
+import time
 
 pygame.init()
 pygame.mixer.init()
@@ -11,6 +12,11 @@ WIDTH = 800
 HEIGHT = 480
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Navinha')
+TILE_SIZE = 40 
+# Define a aceleração da gravidade
+GRAVITY = 5
+# Define a velocidade inicial no pulo
+JUMP_SIZE = TILE_SIZE
 
 # ----- Inicia assets
 METEOR_WIDTH = 50
@@ -41,13 +47,15 @@ assets['boom_sound'] = pygame.mixer.Sound('jogopy/assets/snd/expl3.wav')
 assets['destroy_sound'] = pygame.mixer.Sound('jogopy/assets/snd/expl6.wav')
 assets['pew_sound'] = pygame.mixer.Sound('jogopy/assets/snd/pew.wav')
 
+STILL = 0
+JUMPING = 1
+FALLING = 2
 # ----- Inicia estruturas de dados
 # Definindo os novos tipos
 class Ship(pygame.sprite.Sprite):
     def __init__(self, groups, assets):
         # Construtor da classe mãe (Sprite).
         pygame.sprite.Sprite.__init__(self)
-
         self.image = assets['ship_img']
         self.rect = self.image.get_rect()
         self.rect.centery = HEIGHT/2
@@ -62,8 +70,24 @@ class Ship(pygame.sprite.Sprite):
 
     def update(self):
         # Atualização da posição da nave
+        self.speedy += GRAVITY
+        # Atualiza o estado para caindo
+        if self.speedy > 0:
+            self.state = FALLING
+        # Atualiza a posição y
         self.rect.y += self.speedy
-
+        # Estava indo para baixo
+        if self.speedy > 0:
+            # Se colidiu com algo, para de cair
+            self.speedy = 0
+            # Atualiza o estado para parado
+            self.state = STILL
+        # Estava indo para cima
+        elif self.speedy < 0:
+            # Se colidiu com algo, para de cair
+            self.speedy = 0
+            # Atualiza o estado para parado
+            self.state = STILL
         # Mantem dentro da tela
         if self.rect.top < 0:
             self.rect.top = 0
@@ -85,6 +109,12 @@ class Ship(pygame.sprite.Sprite):
             self.groups['all_sprites'].add(new_bullet)
             self.groups['all_bullets'].add(new_bullet)
             self.assets['pew_sound'].play()
+    
+    def jump(self):
+        # Só pode pular se ainda não estiver pulando ou caindo
+        if self.state == STILL:
+            self.speedy -= JUMP_SIZE
+            self.state = JUMPING
 
 class Meteor(pygame.sprite.Sprite):
     def __init__(self, assets):
@@ -228,9 +258,7 @@ while state != DONE:
                 # Dependendo da tecla, altera a velocidade.
                 keys_down[event.key] = True
                 if event.key == pygame.K_UP:
-                    player.speedy -= 8
-                if event.key == pygame.K_DOWN:
-                    player.speedy += 8
+                    player.jump()
                 if event.key == pygame.K_SPACE:
                     player.shoot()
             # Verifica se soltou alguma tecla.
