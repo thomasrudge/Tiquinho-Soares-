@@ -1,5 +1,5 @@
 # ===== Inicialização =====
-# ----- Importa e inicia cot
+# ----- Importa e inicia pacotes
 import pygame
 import random
 
@@ -18,35 +18,35 @@ METEOR_HEIGHT = 38
 SHIP_WIDTH = 70
 SHIP_HEIGHT = 50
 assets = {}
-assets['background'] = pygame.image.load('assets/img/starfield.png').convert()
-assets['meteor_img'] = pygame.image.load('assets/img/meteorBrown_med1.png').convert_alpha()
+assets['background'] = pygame.image.load('referencia/assets/img/starfield.png').convert()
+assets['meteor_img'] = pygame.image.load('referencia/assets/img/meteorBrown_med1.png').convert_alpha()
 assets['meteor_img'] = pygame.transform.scale(assets['meteor_img'], (METEOR_WIDTH, METEOR_HEIGHT))
-assets['ship_img'] = pygame.image.load('assets/img/boneco.png').convert_alpha()
+assets['ship_img'] = pygame.image.load('referencia/assets/img/boneco.png').convert_alpha()
 assets['ship_img'] = pygame.transform.scale(assets['ship_img'], (SHIP_WIDTH, SHIP_HEIGHT))
-assets['bullet_img'] = pygame.image.load('assets/img/laserRed16.png').convert_alpha()
+assets['bullet_img'] = pygame.image.load('referencia/assets/img/laserRed16.png').convert_alpha()
 explosion_anim = []
 for i in range(9):
     # Os arquivos de animação são numerados de 00 a 08
-    filename = 'assets/img/regularExplosion0{}.png'.format(i)
+    filename = 'referencia/assets/img/regularExplosion0{}.png'.format(i)
     img = pygame.image.load(filename).convert()
     img = pygame.transform.scale(img, (32, 32))
     explosion_anim.append(img)
 assets["explosion_anim"] = explosion_anim
-assets["score_font"] = pygame.font.Font('assets/font/PressStart2P.ttf', 28)
+assets["score_font"] = pygame.font.Font('referencia/assets/font/PressStart2P.ttf', 28)
 
 # Carrega os sons do jogo
-pygame.mixer.music.load('assets/snd/tgfcoder-FrozenJam-SeamlessLoop.ogg')
+pygame.mixer.music.load('referencia/assets/snd/tgfcoder-FrozenJam-SeamlessLoop.ogg')
 pygame.mixer.music.set_volume(0.4)
-assets['boom_sound'] = pygame.mixer.Sound('assets/snd/expl3.wav')
-assets['destroy_sound'] = pygame.mixer.Sound('assets/snd/expl6.wav')
-assets['pew_sound'] = pygame.mixer.Sound('assets/snd/pew.wav')
+assets['boom_sound'] = pygame.mixer.Sound('referencia/assets/snd/expl3.wav')
+assets['destroy_sound'] = pygame.mixer.Sound('referencia/assets/snd/expl6.wav')
+assets['pew_sound'] = pygame.mixer.Sound('referencia/assets/snd/pew.wav')
 
 # ----- Inicia estruturas de dados
 # Definindo os novos tipos
 class Ship(pygame.sprite.Sprite):
-    def _init_(self, groups, assets):
+    def __init__(self, groups, assets):
         # Construtor da classe mãe (Sprite).
-        pygame.sprite.Sprite._init_(self)
+        pygame.sprite.Sprite.__init__(self)
 
         self.image = assets['ship_img']
         self.rect = self.image.get_rect()
@@ -81,14 +81,14 @@ class Ship(pygame.sprite.Sprite):
             # Marca o tick da nova imagem.
             self.last_shot = now
             # A nova bala vai ser criada logo acima e no centro horizontal da nave
-            new_bullet = Bullet(self.assets, self.rect.bottom - 10, self.rect.centery)
+            new_bullet = Bullet(self.assets, self.rect.bottom - 30, self.rect.centery)
             self.groups['all_sprites'].add(new_bullet)
             self.groups['all_bullets'].add(new_bullet)
             self.assets['pew_sound'].play()
 
 class Meteor(pygame.sprite.Sprite):
-    def _init_(self, assets):
-        pygame.sprite.Sprite._init_(self)
+    def __init__(self, assets):
+        pygame.sprite.Sprite.__init__(self)
 
         self.image = assets['meteor_img']
         self.rect = self.image.get_rect()
@@ -110,9 +110,9 @@ class Meteor(pygame.sprite.Sprite):
 # Classe Bullet que representa os tiros
 class Bullet(pygame.sprite.Sprite):
     # Construtor da classe.
-    def _init_(self, assets, bottom, centery):
+    def __init__(self, assets, bottom, centery):
         # Construtor da classe mãe (Sprite).
-        pygame.sprite.Sprite._init_(self)
+        pygame.sprite.Sprite.__init__(self)
 
         self.image = assets['bullet_img']
         self.rect = self.image.get_rect()
@@ -133,9 +133,9 @@ class Bullet(pygame.sprite.Sprite):
 # Classe que representa uma explosão de meteoro
 class Explosion(pygame.sprite.Sprite):
     # Construtor da classe.
-    def _init_(self, center, assets):
+    def __init__(self, center, assets):
         # Construtor da classe mãe (Sprite).
-        pygame.sprite.Sprite._init_(self)
+        pygame.sprite.Sprite.__init__(self)
 
         # Armazena a animação de explosão
         self.explosion_anim = assets['explosion_anim']
@@ -313,3 +313,4 @@ while state != DONE:
 
 # ===== Finalização =====
 pygame.quit()  # Função do PyGame que finaliza os recursos utilizados
+
