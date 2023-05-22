@@ -18,28 +18,28 @@ METEOR_HEIGHT = 38
 SHIP_WIDTH = 70
 SHIP_HEIGHT = 50
 assets = {}
-assets['background'] = pygame.image.load('assets/img/starfield.png').convert()
-assets['meteor_img'] = pygame.image.load('assets/img/meteorBrown_med1.png').convert_alpha()
+assets['background'] = pygame.image.load('jogopy/assets/img/starfield.png').convert()
+assets['meteor_img'] = pygame.image.load('jogopy/assets/img/meteorBrown_med1.png').convert_alpha()
 assets['meteor_img'] = pygame.transform.scale(assets['meteor_img'], (METEOR_WIDTH, METEOR_HEIGHT))
-assets['ship_img'] = pygame.image.load('assets/img/boneco.png').convert_alpha()
+assets['ship_img'] = pygame.image.load('jogopy/assets/img/boneco.png').convert_alpha()
 assets['ship_img'] = pygame.transform.scale(assets['ship_img'], (SHIP_WIDTH, SHIP_HEIGHT))
-assets['bullet_img'] = pygame.image.load('assets/img/laserRed16.png').convert_alpha()
+assets['bullet_img'] = pygame.image.load('jogopy/assets/img/laserRed16.png').convert_alpha()
 explosion_anim = []
 for i in range(9):
     # Os arquivos de animação são numerados de 00 a 08
-    filename = 'assets/img/regularExplosion0{}.png'.format(i)
+    filename = 'jogopy/assets/img/regularExplosion0{}.png'.format(i)
     img = pygame.image.load(filename).convert()
     img = pygame.transform.scale(img, (32, 32))
     explosion_anim.append(img)
 assets["explosion_anim"] = explosion_anim
-assets["score_font"] = pygame.font.Font('assets/font/PressStart2P.ttf', 28)
+assets["score_font"] = pygame.font.Font('jogopy/assets/font/PressStart2P.ttf', 28)
 
 # Carrega os sons do jogo
-pygame.mixer.music.load('assets/snd/tgfcoder-FrozenJam-SeamlessLoop.ogg')
+pygame.mixer.music.load('jogopy/assets/snd/tgfcoder-FrozenJam-SeamlessLoop.ogg')
 pygame.mixer.music.set_volume(0.4)
-assets['boom_sound'] = pygame.mixer.Sound('assets/snd/expl3.wav')
-assets['destroy_sound'] = pygame.mixer.Sound('assets/snd/expl6.wav')
-assets['pew_sound'] = pygame.mixer.Sound('assets/snd/pew.wav')
+assets['boom_sound'] = pygame.mixer.Sound('jogopy/assets/snd/expl3.wav')
+assets['destroy_sound'] = pygame.mixer.Sound('jogopy/assets/snd/expl6.wav')
+assets['pew_sound'] = pygame.mixer.Sound('jogopy/assets/snd/pew.wav')
 
 # ----- Inicia estruturas de dados
 # Definindo os novos tipos
