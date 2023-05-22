@@ -81,7 +81,7 @@ class Ship(pygame.sprite.Sprite):
             # Marca o tick da nova imagem.
             self.last_shot = now
             # A nova bala vai ser criada logo acima e no centro horizontal da nave
-            new_bullet = Bullet(self.assets, self.rect.bottom - 30, self.rect.centery)
+            new_bullet = Bullet(self.assets, self.rect.bottom - 10, self.rect.centery)
             self.groups['all_sprites'].add(new_bullet)
             self.groups['all_bullets'].add(new_bullet)
             self.assets['pew_sound'].play()
