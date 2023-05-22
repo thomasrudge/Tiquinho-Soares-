@@ -1,6 +1,6 @@
-# ===== Inicialização =====
+# ===== Inicia=
 # ----- Importa e inicia cot
-import pygame
+import Pygame.pygame as pygame
 import random
 
 pygame.init()
