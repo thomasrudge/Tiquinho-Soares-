@@ -25,6 +25,8 @@ zumbi_WIDTH = 50
 zumbi_HEIGHT = 38
 SHIP_WIDTH = 70
 SHIP_HEIGHT = 50
+municao_WIDTH = 30
+municao_HEIGHT = 40
 assets = {}
 assets['background'] = pygame.image.load('jogopy/assets/img/starfield.png').convert()
 assets['zumbi1_img'] = pygame.image.load('jogopy/assets/img/zumbi1.png').convert_alpha()
@@ -34,6 +36,9 @@ assets['zumbi2_img'] = pygame.transform.scale(assets['zumbi2_img'], (zumbi_WIDTH
 assets['ship_img'] = pygame.image.load('jogopy/assets/img/boneco.png').convert_alpha()
 assets['ship_img'] = pygame.transform.scale(assets['ship_img'], (SHIP_WIDTH, SHIP_HEIGHT))
 assets['bullet_img'] = pygame.image.load('jogopy/assets/img/laserRed16.png').convert_alpha()
+assets["municao_img"] = pygame.image.load('jogopy/assets/img/municao.png').convert_alpha()
+assets['municao_img'] = pygame.transform.scale(assets['municao_img'], (municao_WIDTH, municao_HEIGHT))
+
 explosion_anim = []
 for i in range(9):
     # Os arquivos de animação são numerados de 00 a 08
@@ -159,6 +164,44 @@ class Meteor(pygame.sprite.Sprite):
     def kill(self):
         pygame.sprite.Sprite.kill(self)  # Remove o zumbi do grupo de sprites
         Meteor.active_zombies -= 1  # Decrementa o número de zumbis ativos
+
+class Municao(pygame.sprite.Sprite):
+    active_municao = 0  # Variável para controlar o número de municao ativos
+
+    def __init__(self, assets):
+        pygame.sprite.Sprite.__init__(self)
+        municao_images = [assets['municao_img'], assets['municao_img']]
+        self.image = random.choice(municao_images)
+        self.rect = self.image.get_rect()
+        self.rect.y =   HEIGHT - 100
+        self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
+        self.speedx = -3
+        self.spawn_interval = random.uniform(10, 20)  # Intervalo de tempo entre cada criação
+        self.spawn_timer = 0.0
+
+        Municao.active_municao += 1  # Incrementa o número de zumbis ativos
+
+    def update(self):
+        self.rect.x += self.speedx
+
+        if self.rect.right < 0:
+            self.rect.y = HEIGHT - 100
+            self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
+            self.speedx = -3
+            self.speedx = random.randint(-9, -2)
+
+        #self.spawn_timer += 5.0 / FPS
+
+        # if self.spawn_timer >= self.spawn_interval and Meteor.active_zombies == 0:
+        #     self.spawn_timer = 0.0
+        #     self.rect.y = HEIGHT - 50
+        #     Meteor.active_zombies += 1  # Incrementa o número de zumbis ativos
+
+    def kill(self):
+        pygame.sprite.Sprite.kill(self)  # Remove o zumbi do grupo de sprites
+        Meteor.active_zombies -= 1  # Decrementa o número de zumbis ativos
+
+
 # Classe Bullet que representa os tiros
 class Bullet(pygame.sprite.Sprite):
     # Construtor da classe.
@@ -239,15 +282,23 @@ FPS = 30
 all_sprites = pygame.sprite.Group()
 all_meteors = pygame.sprite.Group()
 all_bullets = pygame.sprite.Group()
+all_municao = pygame.sprite.Group()
+
 groups = {}
 groups['all_sprites'] = all_sprites
 groups['all_meteors'] = all_meteors
 groups['all_bullets'] = all_bullets
+groups["all_municao"] = all_municao
 
 # Criando o jogador
 player = Ship(groups, assets)
 all_sprites.add(player)
 # Criando os meteoros
+for i in range(1):
+    municao = Municao(assets)
+    all_sprites.add(municao)
+    all_municao.add(municao)
+
 for i in range(8):
     meteor = Meteor(assets)
     all_sprites.add(meteor)
