@@ -415,9 +415,9 @@ while state != DONE:
        
 
             # Ganhou pontos!
-            score += 100
-            contadorvidas += 100
-            if contadorvidas == 1000:
+            score += 20
+            contadorvidas += 20
+            if contadorvidas == 400:
                 contadorvidas = 0
                 lives += 1
 
