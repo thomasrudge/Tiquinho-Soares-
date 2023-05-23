@@ -29,6 +29,8 @@ municao_WIDTH = 30
 municao_HEIGHT = 40
 carro_WIDTH = 100
 carro_HEIGHT = 60
+onibus_WIDTH = 150
+onibus_HEIGHT = 60
 assets = {}
 assets['background'] = pygame.image.load('jogopy/assets/img/starfield.png').convert()
 assets['zumbi1_img'] = pygame.image.load('jogopy/assets/img/zumbi1.png').convert_alpha()
@@ -42,6 +44,8 @@ assets["municao_img"] = pygame.image.load('jogopy/assets/img/municao.png').conve
 assets['municao_img'] = pygame.transform.scale(assets['municao_img'], (municao_WIDTH, municao_HEIGHT))
 assets['carro_img'] = pygame.image.load('jogopy/assets/img/carro.png').convert_alpha()
 assets['carro_img'] = pygame.transform.scale(assets['carro_img'], (carro_WIDTH, carro_HEIGHT))
+assets['onibus_img'] = pygame.image.load('jogopy/assets/img/onibus.png').convert_alpha()
+assets['onibus_img'] = pygame.transform.scale(assets['onibus_img'], (onibus_WIDTH, onibus_HEIGHT))
 explosion_anim = []
 for i in range(9):
     # Os arquivos de animação são numerados de 00 a 08
