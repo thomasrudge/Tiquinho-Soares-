@@ -194,7 +194,7 @@ class Municao(pygame.sprite.Sprite):
         self.rect.y =   HEIGHT - 100
         self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
         self.speedx = -3
-        self.spawn_interval = random.uniform(10, 20)  # Intervalo de tempo entre cada criação
+        self.spawn_interval = random.uniform(2, 5)  # Intervalo de tempo entre cada criação
         self.spawn_timer = 0.0
 
         Municao.active_municao += 1  # Incrementa o número de zumbis ativos
@@ -437,7 +437,7 @@ while state != DONE:
 
         hits2 = pygame.sprite.spritecollide(player, all_municao, True)
 
-        if hits2:
+        if len(hits2) > 0:
             municao += 5
         
 
