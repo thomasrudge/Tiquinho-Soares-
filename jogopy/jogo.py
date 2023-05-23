@@ -21,10 +21,10 @@ JUMP_SIZE = 250
 JUMP_COOLDOWN = 0.5   # Tempo mínimo em segundos entre os pulos
 
 # ----- Inicia assets
-zumbi_WIDTH = 50
-zumbi_HEIGHT = 38
-SHIP_WIDTH = 70
-SHIP_HEIGHT = 50
+zumbi_WIDTH = 70
+zumbi_HEIGHT = 58
+SHIP_WIDTH = 90
+SHIP_HEIGHT = 70
 municao_WIDTH = 30
 municao_HEIGHT = 40
 carro_WIDTH = 100
@@ -220,38 +220,46 @@ class Municao(pygame.sprite.Sprite):
         Meteor.active_zombies -= 1  # Decrementa o número de zumbis ativos
 
 class carro(pygame.sprite.Sprite):
-    active_carro = 0  # Variável para controlar o número de zumbis ativos
+    active_carros = 0  # Variável para controlar o número de carros ativos
+    pontos_para_onibus = 1000  # Pontuação necessária para mudar para a imagem de ônibus
+    imagem_carro = assets['carro_img']
+    imagem_onibus = assets['onibus_img']
 
     def __init__(self, assets):
         pygame.sprite.Sprite.__init__(self)
-        #zumbi_images = [assets['zumbi1_img'], assets['zumbi2_img']]
-        self.image = assets['carro_img']
+        self.image = carro.imagem_carro
         self.rect = self.image.get_rect()
-        self.rect.y =   HEIGHT - 60
-        self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
+        self.rect.y = HEIGHT - 60
+        self.rect.x = WIDTH  # Posição fixa no eixo x para os carros
         self.speedx = random.randint(-12, -9)
         self.spawn_interval = random.uniform(1.0, 3.0)  # Intervalo de tempo entre cada criação
         self.spawn_timer = 0.0
 
-        carro.active_carro += 1  # Incrementa o número de zumbis ativos
+        carro.active_carros += 1  # Incrementa o número de carros ativos
 
     def update(self):
         self.rect.x += self.speedx
 
         if self.rect.right < 0:
             self.rect.y = HEIGHT - 60
-            self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
+            self.rect.x = WIDTH  # Reinicia a posição do carro no eixo x
             self.speedx = random.randint(-16, -9)
 
         self.spawn_timer += 5.0 / FPS
 
-        if self.spawn_timer >= self.spawn_interval and carro.active_carro == 0:
+        if score > carro.pontos_para_onibus and self.image == carro.imagem_carro:
+            extra = 1
+            for _ in range(extra):
+                self.image = carro.imagem_onibus
+
+        if self.spawn_timer >= self.spawn_interval and carro.active_carros == 0:
             self.spawn_timer = 0.0
             self.rect.y = HEIGHT - 50
-            carro.active_carro += 1  # Incrementa o número de zumbis ativos
+            carro.active_carros += 1  # Incrementa o número de carros ativos
 
     def kill(self):
-        carro.active_carro -= 1  # Decrementa o número de zumbis ativos
+        carro.active_carros -= 1  # Decrementa o número de carros ativos
+
 
 
 
