@@ -10,23 +10,27 @@ pygame.mixer.init()
 # ----- Gera tela principal
 WIDTH = 800
 HEIGHT = 480
-window = pygame.display.set_mode((WIDTH, HEIGHT))
+window = pygame.display.set_mode((WIDTH, HEIGHT + 100))
 pygame.display.set_caption('Navinha')
 TILE_SIZE = 40 
 # Define a aceleração da gravidade
-GRAVITY = 5
+GRAVITY = 6
 # Define a velocidade inicial no pulo
-JUMP_SIZE = TILE_SIZE
+JUMP_SIZE = 150
+
+JUMP_COOLDOWN = 0.5   # Tempo mínimo em segundos entre os pulos
 
 # ----- Inicia assets
-METEOR_WIDTH = 50
-METEOR_HEIGHT = 38
+zumbi_WIDTH = 50
+zumbi_HEIGHT = 38
 SHIP_WIDTH = 70
 SHIP_HEIGHT = 50
 assets = {}
 assets['background'] = pygame.image.load('jogopy/assets/img/starfield.png').convert()
-assets['meteor_img'] = pygame.image.load('jogopy/assets/img/meteorBrown_med1.png').convert_alpha()
-assets['meteor_img'] = pygame.transform.scale(assets['meteor_img'], (METEOR_WIDTH, METEOR_HEIGHT))
+assets['zumbi1_img'] = pygame.image.load('jogopy/assets/img/zumbi1.png').convert_alpha()
+assets['zumbi1_img'] = pygame.transform.scale(assets['zumbi1_img'], (zumbi_WIDTH, zumbi_HEIGHT))
+assets['zumbi2_img'] = pygame.image.load('jogopy/assets/img/zumbi2.png').convert_alpha()
+assets['zumbi2_img'] = pygame.transform.scale(assets['zumbi2_img'], (zumbi_WIDTH, zumbi_HEIGHT))
 assets['ship_img'] = pygame.image.load('jogopy/assets/img/boneco.png').convert_alpha()
 assets['ship_img'] = pygame.transform.scale(assets['ship_img'], (SHIP_WIDTH, SHIP_HEIGHT))
 assets['bullet_img'] = pygame.image.load('jogopy/assets/img/laserRed16.png').convert_alpha()
@@ -44,8 +48,8 @@ assets["score_font"] = pygame.font.Font('jogopy/assets/font/PressStart2P.ttf', 2
 pygame.mixer.music.load('jogopy/assets/snd/tgfcoder-FrozenJam-SeamlessLoop.ogg')
 pygame.mixer.music.set_volume(0.4)
 assets['boom_sound'] = pygame.mixer.Sound('jogopy/assets/snd/expl3.wav')
-assets['destroy_sound'] = pygame.mixer.Sound('jogopy/assets/snd/expl6.wav')
-assets['pew_sound'] = pygame.mixer.Sound('jogopy/assets/snd/pew.wav')
+assets['destroy_sound'] = pygame.mixer.Sound('jogopy/assets/snd/dano.mp3')
+assets['pew_sound'] = pygame.mixer.Sound('jogopy/assets/snd/tiro.mp3')
 
 STILL = 0
 JUMPING = 1
@@ -59,14 +63,15 @@ class Ship(pygame.sprite.Sprite):
         self.image = assets['ship_img']
         self.rect = self.image.get_rect()
         self.rect.centery = HEIGHT/2
-        self.rect.bottom = HEIGHT
+        self.rect.bottom = HEIGHT - 150
         self.speedy = 0
         self.groups = groups
         self.assets = assets
+        self.last_jump_time = 0.0
 
         # Só será possível atirar uma vez a cada 500 milissegundos
         self.last_shot = pygame.time.get_ticks()
-        self.shoot_ticks = 500
+        self.shoot_ticks = 250
 
     def update(self):
         # Atualização da posição da nave
@@ -111,32 +116,49 @@ class Ship(pygame.sprite.Sprite):
             self.assets['pew_sound'].play()
     
     def jump(self):
+        current_time = time.time()
+        if current_time - self.last_jump_time > JUMP_COOLDOWN:
+            self.last_jump_time = current_time
         # Só pode pular se ainda não estiver pulando ou caindo
-        if self.state == STILL:
-            self.speedy -= JUMP_SIZE
-            self.state = JUMPING
+            if self.state == STILL:
+                self.speedy -= JUMP_SIZE
+                self.state = JUMPING
+                
 
 class Meteor(pygame.sprite.Sprite):
+    active_zombies = 0  # Variável para controlar o número de zumbis ativos
+
     def __init__(self, assets):
         pygame.sprite.Sprite.__init__(self)
-
-        self.image = assets['meteor_img']
+        zumbi_images = [assets['zumbi1_img'], assets['zumbi2_img']]
+        self.image = random.choice(zumbi_images)
         self.rect = self.image.get_rect()
-        self.rect.y = random.randint(0, HEIGHT - METEOR_HEIGHT)
-        self.rect.x = random.randint(WIDTH, WIDTH + METEOR_WIDTH)
-        self.speedy = random.randint(-3, 3)
+        self.rect.y =   HEIGHT - 50
+        self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
         self.speedx = random.randint(-9, -2)
+        self.spawn_interval = random.uniform(1.0, 3.0)  # Intervalo de tempo entre cada criação
+        self.spawn_timer = 0.0
+
+        Meteor.active_zombies += 1  # Incrementa o número de zumbis ativos
 
     def update(self):
         self.rect.x += self.speedx
-        self.rect.y += self.speedy
 
-        if self.rect.top > HEIGHT or self.rect.right < 0 or self.rect.left > WIDTH:
-            self.rect.y = random.randint(0, HEIGHT - METEOR_HEIGHT)
-            self.rect.x = random.randint(WIDTH, WIDTH + METEOR_WIDTH)
-            self.speedy = random.randint(-3, 3)
+        if self.rect.right < 0:
+            self.rect.y = HEIGHT - 50
+            self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
             self.speedx = random.randint(-9, -2)
 
+        self.spawn_timer += 5.0 / FPS
+
+        if self.spawn_timer >= self.spawn_interval and Meteor.active_zombies == 0:
+            self.spawn_timer = 0.0
+            self.rect.y = HEIGHT - 50
+            Meteor.active_zombies += 1  # Incrementa o número de zumbis ativos
+
+    def kill(self):
+        pygame.sprite.Sprite.kill(self)  # Remove o zumbi do grupo de sprites
+        Meteor.active_zombies -= 1  # Decrementa o número de zumbis ativos
 # Classe Bullet que representa os tiros
 class Bullet(pygame.sprite.Sprite):
     # Construtor da classe.
