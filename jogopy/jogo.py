@@ -16,7 +16,7 @@ TILE_SIZE = 40
 # Define a aceleração da gravidade
 GRAVITY = 6
 # Define a velocidade inicial no pulo
-JUMP_SIZE = 150
+JUMP_SIZE = 250
 
 JUMP_COOLDOWN = 0.5   # Tempo mínimo em segundos entre os pulos
 
@@ -25,6 +25,8 @@ zumbi_WIDTH = 70
 zumbi_HEIGHT = 58
 SHIP_WIDTH = 90
 SHIP_HEIGHT = 70
+carro_WIDTH = 100
+carro_HEIGHT = 60
 assets = {}
 assets['background'] = pygame.image.load('jogopy/assets/img/starfield.png').convert()
 assets['zumbi1_img'] = pygame.image.load('jogopy/assets/img/zumbi1.png').convert_alpha()
@@ -34,6 +36,8 @@ assets['zumbi2_img'] = pygame.transform.scale(assets['zumbi2_img'], (zumbi_WIDTH
 assets['ship_img'] = pygame.image.load('jogopy/assets/img/boneco.png').convert_alpha()
 assets['ship_img'] = pygame.transform.scale(assets['ship_img'], (SHIP_WIDTH, SHIP_HEIGHT))
 assets['bullet_img'] = pygame.image.load('jogopy/assets/img/laserRed16.png').convert_alpha()
+assets['carro_img'] = pygame.image.load('jogopy/assets/img/carro.png').convert_alpha()
+assets['carro_img'] = pygame.transform.scale(assets['carro_img'], (carro_WIDTH, carro_HEIGHT))
 explosion_anim = []
 for i in range(9):
     # Os arquivos de animação são numerados de 00 a 08
@@ -159,6 +163,40 @@ class Meteor(pygame.sprite.Sprite):
     def kill(self):
         pygame.sprite.Sprite.kill(self)  # Remove o zumbi do grupo de sprites
         Meteor.active_zombies -= 1  # Decrementa o número de zumbis ativos
+
+class carro(pygame.sprite.Sprite):
+    active_carro = 0  # Variável para controlar o número de zumbis ativos
+
+    def __init__(self, assets):
+        pygame.sprite.Sprite.__init__(self)
+        #zumbi_images = [assets['zumbi1_img'], assets['zumbi2_img']]
+        self.image = assets['carro_img']
+        self.rect = self.image.get_rect()
+        self.rect.y =   HEIGHT - 60
+        self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
+        self.speedx = random.randint(-12, -9)
+        self.spawn_interval = random.uniform(1.0, 3.0)  # Intervalo de tempo entre cada criação
+        self.spawn_timer = 0.0
+
+        carro.active_carro += 1  # Incrementa o número de zumbis ativos
+
+    def update(self):
+        self.rect.x += self.speedx
+
+        if self.rect.right < 0:
+            self.rect.y = HEIGHT - 60
+            self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
+            self.speedx = random.randint(-16, -9)
+
+        self.spawn_timer += 5.0 / FPS
+
+        if self.spawn_timer >= self.spawn_interval and carro.active_carro == 0:
+            self.spawn_timer = 0.0
+            self.rect.y = HEIGHT - 50
+            carro.active_carro += 1  # Incrementa o número de zumbis ativos
+
+    def kill(self):
+        carro.active_carro -= 1  # Decrementa o número de zumbis ativos
 # Classe Bullet que representa os tiros
 class Bullet(pygame.sprite.Sprite):
     # Construtor da classe.
@@ -239,19 +277,27 @@ FPS = 30
 all_sprites = pygame.sprite.Group()
 all_meteors = pygame.sprite.Group()
 all_bullets = pygame.sprite.Group()
+all_carros = pygame.sprite.Group()
 groups = {}
 groups['all_sprites'] = all_sprites
 groups['all_meteors'] = all_meteors
 groups['all_bullets'] = all_bullets
+groups['all_carros'] = all_carros
 
 # Criando o jogador
 player = Ship(groups, assets)
 all_sprites.add(player)
+x = 8
 # Criando os meteoros
-for i in range(8):
+for i in range(x):
     meteor = Meteor(assets)
     all_sprites.add(meteor)
     all_meteors.add(meteor)
+y = 1
+for i in range(y):
+    carro1 = carro(assets)
+    all_sprites.add(carro1)
+    all_carros.add(carro1)
 
 DONE = 0
 PLAYING = 1
@@ -320,6 +366,18 @@ while state != DONE:
 
         # Verifica se houve colisão entre nave e meteoro
         hits = pygame.sprite.spritecollide(player, all_meteors, True)
+        if len(hits) > 0:
+            # Toca o som da colisão
+            assets['boom_sound'].play()
+            player.kill()
+            lives -= 1
+            explosao = Explosion(player.rect.center, assets)
+            all_sprites.add(explosao)
+            state = EXPLODING
+            keys_down = {}
+            explosion_tick = pygame.time.get_ticks()
+            explosion_duration = explosao.frame_ticks * len(explosao.explosion_anim) + 400
+        hits = pygame.sprite.spritecollide(player, all_carros, True)
         if len(hits) > 0:
             # Toca o som da colisão
             assets['boom_sound'].play()
