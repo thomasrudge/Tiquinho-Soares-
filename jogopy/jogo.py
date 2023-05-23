@@ -194,7 +194,7 @@ class Municao(pygame.sprite.Sprite):
         self.rect.y =   HEIGHT - 100
         self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
         self.speedx = -3
-        self.spawn_interval = random.uniform(2, 5)  # Intervalo de tempo entre cada criação
+        self.spawn_interval = random.uniform(10, 20)  # Intervalo de tempo entre cada criação
         self.spawn_timer = 0.0
 
         Municao.active_municao += 1  # Incrementa o número de zumbis ativos
@@ -208,15 +208,15 @@ class Municao(pygame.sprite.Sprite):
             self.speedx = -3
             self.speedx = random.randint(-9, -2)
 
-        #self.spawn_timer += 5.0 / FPS
+        self.spawn_timer += 5.0 / FPS
 
-        # if self.spawn_timer >= self.spawn_interval and Meteor.active_zombies == 0:
-        #     self.spawn_timer = 0.0
-        #     self.rect.y = HEIGHT - 50
-        #     Meteor.active_zombies += 1  # Incrementa o número de zumbis ativos
+        if self.spawn_timer >= self.spawn_interval and Meteor.active_zombies == 0:
+            self.spawn_timer = 0.0
+            self.rect.y = HEIGHT - 50
+            Meteor.active_zombies += 1  # Incrementa o número de zumbis ativos
 
     def kill(self):
-        pygame.sprite.Sprite.kill(self)  # Remove o zumbi do grupo de sprites
+          # Remove o zumbi do grupo de sprites
         Meteor.active_zombies -= 1  # Decrementa o número de zumbis ativos
 
 class carro(pygame.sprite.Sprite):
@@ -404,6 +404,9 @@ while state != DONE:
                     player.jump()
                 if event.key == pygame.K_SPACE:
                     player.shoot()
+                    if municao < 0:
+                        state = DONE 
+                    municao -= 1
             # Verifica se soltou alguma tecla.
             if event.type == pygame.KEYUP:
                 # Dependendo da tecla, altera a velocidade.
@@ -447,6 +450,7 @@ while state != DONE:
 
         if len(hits2) > 0:
             municao += 5
+        
         
 
         hits = pygame.sprite.spritecollide(player, all_meteors, True)
