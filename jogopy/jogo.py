@@ -139,13 +139,14 @@ class Ship(pygame.sprite.Sprite):
 
 class Meteor(pygame.sprite.Sprite):
     active_zombies = 0  # Variável para controlar o número de zumbis ativos
+    extra_zombies_added = 0  # Variável para controlar a quantidade de zumbis extras adicionados
 
     def __init__(self, assets):
         pygame.sprite.Sprite.__init__(self)
         zumbi_images = [assets['zumbi1_img'], assets['zumbi2_img']]
         self.image = random.choice(zumbi_images)
         self.rect = self.image.get_rect()
-        self.rect.y =   HEIGHT - 50
+        self.rect.y = HEIGHT - 50
         self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
         self.speedx = random.randint(-9, -2)
         self.spawn_interval = random.uniform(1.0, 3.0)  # Intervalo de tempo entre cada criação
@@ -163,6 +164,16 @@ class Meteor(pygame.sprite.Sprite):
 
         self.spawn_timer += 5.0 / FPS
 
+        if score > 200 + (Meteor.extra_zombies_added * 200):
+            # Calcula a quantidade de zumbis extras a serem adicionados
+            extra_zombies = (score - 200) // 200 - Meteor.extra_zombies_added
+            for _ in range(extra_zombies):
+                meteor = Meteor(assets)
+                all_sprites.add(meteor)
+                all_meteors.add(meteor)
+                Meteor.active_zombies += 1  # Incrementa o número de zumbis ativos
+                Meteor.extra_zombies_added += 1  # Incrementa a quantidade de zumbis extras adicionados
+
         if self.spawn_timer >= self.spawn_interval and Meteor.active_zombies == 0:
             self.spawn_timer = 0.0
             self.rect.y = HEIGHT - 50
@@ -171,6 +182,7 @@ class Meteor(pygame.sprite.Sprite):
     def kill(self):
         pygame.sprite.Sprite.kill(self)  # Remove o zumbi do grupo de sprites
         Meteor.active_zombies -= 1  # Decrementa o número de zumbis ativos
+
 class Municao(pygame.sprite.Sprite):
     active_municao = 0  # Variável para controlar o número de municao ativos
 
@@ -336,7 +348,7 @@ groups['all_carros'] = all_carros
 # Criando o jogador
 player = Ship(groups, assets)
 all_sprites.add(player)
-x = 8
+x = 1
 # Criando os meteoros
 for i in range(1):
     municao = Municao(assets)
