@@ -362,6 +362,7 @@ keys_down = {}
 score = 0
 lives = 3
 contadorvidas = 0
+municao = 20
 
 # ===== Loop principal =====
 pygame.mixer.music.play(loops=-1)
@@ -411,6 +412,8 @@ while state != DONE:
             explosao = Explosion(meteor.rect.center, assets)
             all_sprites.add(explosao)
 
+       
+
             # Ganhou pontos!
             score += 100
             contadorvidas += 100
@@ -419,6 +422,13 @@ while state != DONE:
                 lives += 1
 
         # Verifica se houve colisão entre nave e meteoro
+
+        hits2 = pygame.sprite.spritecollide(player, all_municao, True)
+
+        if hits2:
+            municao += 5
+        
+
         hits = pygame.sprite.spritecollide(player, all_meteors, True)
         if len(hits) > 0:
             # Toca o som da colisão
@@ -460,10 +470,17 @@ while state != DONE:
     all_sprites.draw(window)
 
     # Desenhando o score
-    text_surface = assets['score_font'].render("{:08d}".format(score), True, (255, 255, 0))
+    text_surface = assets['score_font'].render("Pontos: {:08d}".format(score), True, (255, 255, 0))
     text_rect = text_surface.get_rect()
     text_rect.midtop = (WIDTH / 2,  10)
     window.blit(text_surface, text_rect)
+    # Desenhando o score
+
+    text_surface = assets['score_font'].render("Municao: {:08d}".format(municao), True, (255, 255, 255))
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (WIDTH / 2,  40)
+    window.blit(text_surface, text_rect)
+
 
     # Desenhando as vidas
     text_surface = assets['score_font'].render(chr(9829) * lives, True, (255, 0, 0))
