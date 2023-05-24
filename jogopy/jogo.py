@@ -418,7 +418,11 @@ while state != DONE:
                 mu = Municao(assets)
                 all_sprites.add(mu) 
                 all_municao.add(mu)
+<<<<<<< HEAD
                 quantidade_municao += 10
+=======
+                quantidade_municao += 5
+>>>>>>> cdcc83c (Municao)
         
         
 
