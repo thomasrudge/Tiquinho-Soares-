@@ -14,11 +14,11 @@ window = pygame.display.set_mode((WIDTH, HEIGHT + 100))
 pygame.display.set_caption('Navinha')
 TILE_SIZE = 40 
 # Define a aceleração da gravidade
-GRAVITY = 6
+GRAVITY = 3.5 
 # Define a velocidade inicial no pulo
-JUMP_SIZE = 250
+JUMP_SIZE = 150
 
-JUMP_COOLDOWN = 0.5   # Tempo mínimo em segundos entre os pulos
+JUMP_COOLDOWN = 0.5    # Tempo mínimo em segundos entre os pulos
 
 # ----- Inicia assets
 zumbi_WIDTH = 70
@@ -175,7 +175,7 @@ class Municao(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = assets['municao_img']
         self.rect = self.image.get_rect()
-        self.rect.y =   HEIGHT - 250
+        self.rect.y =   HEIGHT - 150
         self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
         self.speedx = -6
 
@@ -418,10 +418,17 @@ while state != DONE:
                 mu = Municao(assets)
                 all_sprites.add(mu) 
                 all_municao.add(mu)
+                if score < 1000:
+                    quantidade_municao += 5
+                if score >= 1000 and score < 2000:
+                    quantidade_municao += 10
+                if score >= 2000 and score < 3000:
+                    quantidade_municao += 15
+                if score >= 3000:
+                    quantidade_municao += 20
 
-                quantidade_municao += 5
-
-
+        
+        
 
         hits = pygame.sprite.spritecollide(player, all_meteors, True)
         if len(hits) > 0:
