@@ -418,7 +418,10 @@ while state != DONE:
                 mu = Municao(assets)
                 all_sprites.add(mu) 
                 all_municao.add(mu)
-        
+
+                quantidade_municao += 5
+
+
 
         hits = pygame.sprite.spritecollide(player, all_meteors, True)
         if len(hits) > 0:
