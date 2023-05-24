@@ -418,7 +418,7 @@ while state != DONE:
                 mu = Municao(assets)
                 all_sprites.add(mu) 
                 all_municao.add(mu)
-                quantidade_municao += 
+                quantidade_municao += 10
         
         
 
