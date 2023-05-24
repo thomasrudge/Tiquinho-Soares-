@@ -16,7 +16,7 @@ TILE_SIZE = 40
 # Define a aceleração da gravidade
 GRAVITY = 3.5 
 # Define a velocidade inicial no pulo
-JUMP_SIZE = 150
+JUMP_SIZE = 170
 
 JUMP_COOLDOWN = 0.5    # Tempo mínimo em segundos entre os pulos
 
@@ -34,9 +34,9 @@ onibus_HEIGHT = 60
 assets = {}
 assets['background'] = pygame.image.load('jogopy/assets/img/starfield.png').convert()
 assets['zumbi1_img'] = pygame.image.load('jogopy/assets/img/zumbi1.png').convert_alpha()
-assets['zumbi1_img'] = pygame.transform.scale(assets['zumbi1_img'], (zumbi_WIDTH, zumbi_HEIGHT))
+assets['zumbi1_img'] = pygame.transform.scale(assets['zumbi1_img'], (zumbi_WIDTH + 10, zumbi_HEIGHT + 10))
 assets['zumbi2_img'] = pygame.image.load('jogopy/assets/img/zumbi2.png').convert_alpha()
-assets['zumbi2_img'] = pygame.transform.scale(assets['zumbi2_img'], (zumbi_WIDTH, zumbi_HEIGHT))
+assets['zumbi2_img'] = pygame.transform.scale(assets['zumbi2_img'], (zumbi_WIDTH + 20, zumbi_HEIGHT + 20))
 assets['ship_img'] = pygame.image.load('jogopy/assets/img/boneco.png').convert_alpha()
 assets['ship_img'] = pygame.transform.scale(assets['ship_img'], (SHIP_WIDTH, SHIP_HEIGHT))
 assets['bullet_img'] = pygame.image.load('jogopy/assets/img/laserRed16.png').convert_alpha()
@@ -184,7 +184,7 @@ class Municao(pygame.sprite.Sprite):
         self.rect.x += self.speedx
 
         if self.rect.right < 0:
-            self.rect.y = HEIGHT - 250
+            self.rect.y = HEIGHT - 150
             self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
             self.speedx = -6
 
