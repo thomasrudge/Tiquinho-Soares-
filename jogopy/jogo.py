@@ -83,7 +83,7 @@ class Ship(pygame.sprite.Sprite):
 
         # Só será possível atirar uma vez a cada 500 milissegundos
         self.last_shot = pygame.time.get_ticks()
-        self.shoot_ticks = 250
+        self.shoot_ticks = 0
 
     def update(self):
         # Atualização da posição da nave
@@ -138,7 +138,6 @@ class Ship(pygame.sprite.Sprite):
                 
 
 class Meteor(pygame.sprite.Sprite):
-    active_zombies = 0  # Variável para controlar o número de zumbis ativos
     extra_zombies_added = 0  # Variável para controlar a quantidade de zumbis extras adicionados
 
     def __init__(self, assets):
@@ -149,10 +148,6 @@ class Meteor(pygame.sprite.Sprite):
         self.rect.y = HEIGHT - 50
         self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
         self.speedx = random.randint(-9, -2)
-        self.spawn_interval = random.uniform(1.0, 3.0)  # Intervalo de tempo entre cada criação
-        self.spawn_timer = 0.0
-
-        Meteor.active_zombies += 1  # Incrementa o número de zumbis ativos
 
     def update(self):
         self.rect.x += self.speedx
@@ -162,7 +157,6 @@ class Meteor(pygame.sprite.Sprite):
             self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
             self.speedx = random.randint(-9, -2)
 
-        self.spawn_timer += 5.0 / FPS
 
         if score > 200 + (Meteor.extra_zombies_added * 200):
             # Calcula a quantidade de zumbis extras a serem adicionados
@@ -171,53 +165,28 @@ class Meteor(pygame.sprite.Sprite):
                 meteor = Meteor(assets)
                 all_sprites.add(meteor)
                 all_meteors.add(meteor)
-                Meteor.active_zombies += 1  # Incrementa o número de zumbis ativos
                 Meteor.extra_zombies_added += 1  # Incrementa a quantidade de zumbis extras adicionados
-
-        if self.spawn_timer >= self.spawn_interval and Meteor.active_zombies == 0:
-            self.spawn_timer = 0.0
-            self.rect.y = HEIGHT - 50
-            Meteor.active_zombies += 1  # Incrementa o número de zumbis ativos
-
-    def kill(self):
-        pygame.sprite.Sprite.kill(self)  # Remove o zumbi do grupo de sprites
-        Meteor.active_zombies -= 1  # Decrementa o número de zumbis ativos
+ 
 
 class Municao(pygame.sprite.Sprite):
     active_municao = 0  # Variável para controlar o número de municao ativos
 
     def __init__(self, assets):
         pygame.sprite.Sprite.__init__(self)
-        municao_images = [assets['municao_img'], assets['municao_img']]
-        self.image = random.choice(municao_images)
+        self.image = assets['municao_img']
         self.rect = self.image.get_rect()
-        self.rect.y =   HEIGHT - 100
+        self.rect.y =   HEIGHT - 250
         self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
-        self.speedx = -3
-        self.spawn_interval = random.uniform(10, 20)  # Intervalo de tempo entre cada criação
-        self.spawn_timer = 0.0
+        self.speedx = -6
 
-        Municao.active_municao += 1  # Incrementa o número de zumbis ativos
 
     def update(self):
         self.rect.x += self.speedx
 
         if self.rect.right < 0:
-            self.rect.y = HEIGHT - 100
+            self.rect.y = HEIGHT - 250
             self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
-            self.speedx = -3
-            self.speedx = random.randint(-9, -2)
-
-        self.spawn_timer += 5.0 / FPS
-
-        if self.spawn_timer >= self.spawn_interval and Meteor.active_zombies == 0:
-            self.spawn_timer = 0.0
-            self.rect.y = HEIGHT - 50
-            Meteor.active_zombies += 1  # Incrementa o número de zumbis ativos
-
-    def kill(self):
-          # Remove o zumbi do grupo de sprites
-        Meteor.active_zombies -= 1  # Decrementa o número de zumbis ativos
+            self.speedx = -6
 
 class carro(pygame.sprite.Sprite):
     active_carros = 0  # Variável para controlar o número de carros ativos
@@ -356,13 +325,11 @@ groups['all_carros'] = all_carros
 # Criando o jogador
 player = Ship(groups, assets)
 all_sprites.add(player)
-x = 1
+municao1 = Municao(assets)
+all_sprites.add(municao1)
+all_municao.add(municao1)
 # Criando os meteoros
-for i in range(1):
-    municao = Municao(assets)
-    all_sprites.add(municao)
-    all_municao.add(municao)
-
+x = 1
 for i in range(x):
     meteor = Meteor(assets)
     all_sprites.add(meteor)
@@ -382,7 +349,7 @@ keys_down = {}
 score = 0
 lives = 3
 contadorvidas = 0
-municao = 20
+quantidade_municao = 20
 
 # ===== Loop principal =====
 pygame.mixer.music.play(loops=-1)
@@ -404,17 +371,15 @@ while state != DONE:
                     player.jump()
                 if event.key == pygame.K_SPACE:
                     player.shoot()
-                    if municao < 0:
+                    if quantidade_municao < 0:
                         state = DONE 
-                    municao -= 1
+                    quantidade_municao -= 1
             # Verifica se soltou alguma tecla.
             if event.type == pygame.KEYUP:
                 # Dependendo da tecla, altera a velocidade.
                 if event.key in keys_down and keys_down[event.key]:
-                    if event.key == pygame.K_UP:
-                        player.speedy += 8
                     if event.key == pygame.K_DOWN:
-                        player.speedy -= 8
+                        player.speedy += 200
 
 
     # ----- Atualiza estado do jogo
@@ -428,7 +393,7 @@ while state != DONE:
             # O meteoro e destruido e precisa ser recriado
             assets['destroy_sound'].play()
             m = Meteor(assets)
-            all_sprites.add(m)
+            all_sprites.add(m) 
             all_meteors.add(m)
 
             # No lugar do meteoro antigo, adicionar uma explosão.
@@ -446,10 +411,14 @@ while state != DONE:
 
         # Verifica se houve colisão entre nave e meteoro
 
-        hits2 = pygame.sprite.spritecollide(player, all_municao, True)
+        hits2 = pygame.sprite.spritecollide(player,all_municao, True)
 
         if len(hits2) > 0:
-            municao += 5
+            for t in range(len(hits2)):
+                mu = Municao(assets)
+                all_sprites.add(mu) 
+                all_municao.add(mu)
+                quantidade_municao += 
         
         
 
@@ -457,6 +426,9 @@ while state != DONE:
         if len(hits) > 0:
             # Toca o som da colisão
             assets['boom_sound'].play()
+            m = Meteor(assets)
+            all_sprites.add(m) 
+            all_meteors.add(m)
             player.kill()
             lives -= 1
             explosao = Explosion(player.rect.center, assets)
@@ -500,7 +472,7 @@ while state != DONE:
     window.blit(text_surface, text_rect)
     # Desenhando o score
 
-    text_surface = assets['score_font'].render("Municao: {:08d}".format(municao), True, (255, 255, 255))
+    text_surface = assets['score_font'].render("Municao: {:08d}".format(quantidade_municao), True, (255, 255, 255))
     text_rect = text_surface.get_rect()
     text_rect.midtop = (WIDTH / 2,  40)
     window.blit(text_surface, text_rect)
@@ -509,7 +481,7 @@ while state != DONE:
     # Desenhando as vidas
     text_surface = assets['score_font'].render(chr(9829) * lives, True, (255, 0, 0))
     text_rect = text_surface.get_rect()
-    text_rect.bottomleft = (WIDTH - 100, HEIGHT - 10)
+    text_rect.bottomleft = ((WIDTH - 100)/ 2, 120 )
     window.blit(text_surface, text_rect)
 
     pygame.display.update()  # Mostra o novo frame para o jogador
