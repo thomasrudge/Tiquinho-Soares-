@@ -138,8 +138,6 @@ class Ship(pygame.sprite.Sprite):
                 
 
 class Meteor(pygame.sprite.Sprite):
-    extra_zombies_added = 0  # Variável para controlar a quantidade de zumbis extras adicionados
-
     def __init__(self, assets):
         pygame.sprite.Sprite.__init__(self)
         zumbi_images = [assets['zumbi1_img'], assets['zumbi2_img']]
@@ -156,16 +154,6 @@ class Meteor(pygame.sprite.Sprite):
             self.rect.y = HEIGHT - 50
             self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
             self.speedx = random.randint(-9, -2)
-
-
-        if score > 200 + (Meteor.extra_zombies_added * 200):
-            # Calcula a quantidade de zumbis extras a serem adicionados
-            extra_zombies = (score - 200) // 200 - Meteor.extra_zombies_added
-            for _ in range(extra_zombies):
-                meteor = Meteor(assets)
-                all_sprites.add(meteor)
-                all_meteors.add(meteor)
-                Meteor.extra_zombies_added += 1  # Incrementa a quantidade de zumbis extras adicionados
  
 
 class Municao(pygame.sprite.Sprite):
@@ -344,7 +332,7 @@ DONE = 0
 PLAYING = 1
 EXPLODING = 2
 state = PLAYING
-
+quantidade_zumbies = 0
 keys_down = {}
 score = 0
 lives = 3
@@ -380,6 +368,14 @@ while state != DONE:
                 if event.key in keys_down and keys_down[event.key]:
                     if event.key == pygame.K_DOWN:
                         player.speedy += 200
+            if score > 200 + (quantidade_zumbies * 200):
+            # Calcula a quantidade de zumbis extras a serem adicionados
+                extra_zombies = (score) // 200 - quantidade_zumbies
+                for _ in range(extra_zombies):
+                    meteor = Meteor(assets)
+                    all_sprites.add(meteor)
+                    all_meteors.add(meteor)
+                    quantidade_zumbies += 1  # Incrementa a quantidade de zumbis extras adicionados
 
 
     # ----- Atualiza estado do jogo
@@ -434,10 +430,12 @@ while state != DONE:
         if len(hits) > 0:
             # Toca o som da colisão
             assets['boom_sound'].play()
-            m = Meteor(assets)
-            all_sprites.add(m) 
-            all_meteors.add(m)
             player.kill()
+            all_meteors = pygame.sprite.Group()
+            for _ in range(quantidade_zumbies+1):
+                meteor = Meteor(assets)
+                all_sprites.add(meteor)
+                all_meteors.add(meteor)
             lives -= 1
             explosao = Explosion(player.rect.center, assets)
             all_sprites.add(explosao)
