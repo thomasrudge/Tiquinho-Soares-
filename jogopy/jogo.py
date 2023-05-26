@@ -311,7 +311,8 @@ def game_over(window):
                 pygame.quit()
                 quit()
             elif event.type == pygame.KEYDOWN:
-                return "QUIT"
+                if event.key == pygame.K_r:
+                    return state
 
 
 
@@ -343,7 +344,7 @@ all_municao.add(municao1)
 x = 1
 for i in range(x):
     meteor = Meteor(assets)
-    all_sprites.add(meteor)
+    #all_sprites.add(meteor)
     all_meteors.add(meteor)
 y = 1
 for i in range(y):
@@ -396,7 +397,7 @@ while state != DONE:
                 extra_zombies = (score) // 200 - quantidade_zumbies
                 for _ in range(extra_zombies):
                     meteor = Meteor(assets)
-                    all_sprites.add(meteor)
+                    #all_sprites.add(meteor)
                     all_meteors.add(meteor)
                     quantidade_zumbies += 1  # Incrementa a quantidade de zumbis extras adicionados
 
@@ -404,6 +405,7 @@ while state != DONE:
     # ----- Atualiza estado do jogo
     # Atualizando a posição dos meteoros
     all_sprites.update()
+    all_meteors.update()
 
     if state == PLAYING:
         # Verifica se houve colisão entre tiro e meteoro
@@ -412,7 +414,7 @@ while state != DONE:
             # O meteoro e destruido e precisa ser recriado
             assets['destroy_sound'].play()
             m = Meteor(assets)
-            all_sprites.add(m) 
+            #all_sprites.add(m) 
             all_meteors.add(m)
 
             # No lugar do meteoro antigo, adicionar uma explosão.
@@ -454,9 +456,11 @@ while state != DONE:
             # Toca o som da colisão
             assets['boom_sound'].play()
             player.kill()
-            mt = Meteor(assets)
-            all_sprites.add(mt) 
-            all_meteors.add(mt)
+            all_meteors = pygame.sprite.Group()
+            for t in range(quantidade_zumbies + 1):
+                mt = Meteor(assets)
+                #all_sprites.add(mt) 
+                all_meteors.add(mt)
             lives -= 1
             explosao = Explosion(player.rect.center, assets)
             all_sprites.add(explosao)
@@ -476,12 +480,12 @@ while state != DONE:
             keys_down = {}
             explosion_tick = pygame.time.get_ticks()
             explosion_duration = explosao.frame_ticks * len(explosao.explosion_anim) + 400
-        if lives == 0:
+        if lives == 0 or quantidade_municao == 0:
             vini = game_over(window)
-            for event in pygame.event.get():
+            #for event in pygame.event.get():
         # ----- Verifica consequências
-                if event.type == pygame.KEYUP:
-                    state = DONE
+                #if event.type == pygame.KEYUP:
+                    #state = DONE 
     elif state == EXPLODING:
         now = pygame.time.get_ticks()
         if now - explosion_tick > explosion_duration:
@@ -497,6 +501,7 @@ while state != DONE:
     window.fill((0, 0, 0))  # Preenche com a cor branca
     window.blit(assets['background'], (0, 0))
     # Desenhando meteoros
+    all_meteors.draw(window)
     all_sprites.draw(window)
 
     # Desenhando o score
