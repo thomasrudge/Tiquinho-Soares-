@@ -433,7 +433,7 @@ while state != DONE:
             player.kill()
             mt = Meteor(assets)
             all_sprites.add(mt) 
-            all_meteors.add(mt )
+            all_meteors.add(mt)
             lives -= 1
             explosao = Explosion(player.rect.center, assets)
             all_sprites.add(explosao)
