@@ -154,7 +154,7 @@ class Meteor(pygame.sprite.Sprite):
             self.rect.y = HEIGHT - 50
             self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
             self.speedx = random.randint(-9, -2)
- 
+
 
 class Municao(pygame.sprite.Sprite):
     active_municao = 0  # Variável para controlar o número de municao ativos
@@ -431,6 +431,9 @@ while state != DONE:
             # Toca o som da colisão
             assets['boom_sound'].play()
             player.kill()
+            mt = Meteor(assets)
+            all_sprites.add(mt) 
+            all_meteors.add(mt )
             lives -= 1
             explosao = Explosion(player.rect.center, assets)
             all_sprites.add(explosao)
