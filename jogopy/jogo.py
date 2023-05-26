@@ -292,6 +292,23 @@ class Explosion(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = center
 
+def reset_game():
+    all_sprites.empty()
+    all_meteors.empty()
+    all_bullets.empty()
+    all_carros.empty()
+    all_municao.empty()
+    player = Ship(groups, assets)
+    all_sprites.add(player)
+    municao1 = Municao(assets)
+    all_sprites.add(municao1)
+    all_municao.add(municao1)
+    x = 1
+    for i in range(x):
+        meteor = Meteor(assets)
+        all_sprites.add(meteor)
+        all_meteors.add(meteor)
+        
 def game_over(window):
     pygame.init()
     WIDTH = window.get_width()
@@ -300,6 +317,7 @@ def game_over(window):
     font = pygame.font.Font(None, 36)
     text = font.render("Game Over", True, (255, 255, 255))
     text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+
 
     while True:
         window.fill((0, 0, 0))
@@ -312,7 +330,8 @@ def game_over(window):
                 quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    return state
+                    reset_game()
+                    return
 
 
 
