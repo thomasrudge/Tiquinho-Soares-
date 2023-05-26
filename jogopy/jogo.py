@@ -476,15 +476,22 @@ while state != DONE:
             keys_down = {}
             explosion_tick = pygame.time.get_ticks()
             explosion_duration = explosao.frame_ticks * len(explosao.explosion_anim) + 400
+        if lives == 0:
+            vini = game_over(window)
+            for event in pygame.event.get():
+        # ----- Verifica consequências
+                if event.type == pygame.KEYUP:
+                    state = DONE
     elif state == EXPLODING:
         now = pygame.time.get_ticks()
         if now - explosion_tick > explosion_duration:
             if lives == 0:
-                state = game_over(window)
+                state = DONE
             else:
                 state = PLAYING
-                player = Ship(groups, assets)
+                player = Ship(groups,assets)
                 all_sprites.add(player)
+        
 
     # ----- Gera saídas
     window.fill((0, 0, 0))  # Preenche com a cor branca
