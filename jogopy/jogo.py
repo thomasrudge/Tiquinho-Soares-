@@ -431,11 +431,6 @@ while state != DONE:
             # Toca o som da colisão
             assets['boom_sound'].play()
             player.kill()
-            all_meteors = pygame.sprite.Group()
-            for _ in range(quantidade_zumbies+1):
-                meteor = Meteor(assets)
-                all_sprites.add(meteor)
-                all_meteors.add(meteor)
             lives -= 1
             explosao = Explosion(player.rect.center, assets)
             all_sprites.add(explosao)
