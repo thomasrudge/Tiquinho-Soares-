@@ -292,6 +292,29 @@ class Explosion(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = center
 
+def game_over(window):
+    pygame.init()
+    WIDTH = window.get_width()
+    HEIGHT = window.get_height()
+
+    font = pygame.font.Font(None, 36)
+    text = font.render("Game Over", True, (255, 255, 255))
+    text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+
+    while True:
+        window.fill((0, 0, 0))
+        window.blit(text, text_rect)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                return "QUIT"
+
+
+
 # Variável para o ajuste de velocidade
 clock = pygame.time.Clock()
 FPS = 30
@@ -457,7 +480,7 @@ while state != DONE:
         now = pygame.time.get_ticks()
         if now - explosion_tick > explosion_duration:
             if lives == 0:
-                state = DONE
+                state = game_over(window)
             else:
                 state = PLAYING
                 player = Ship(groups, assets)
