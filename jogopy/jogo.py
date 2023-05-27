@@ -393,8 +393,16 @@ while state != DONE:
                 if event.key == pygame.K_SPACE:
                     all_sprites = pygame.sprite.Group()
                     all_meteors = pygame.sprite.Group()
+                    all_bullets = pygame.sprite.Group()
                     all_carros = pygame.sprite.Group()
                     all_municao = pygame.sprite.Group()
+
+                    groups = {}
+                    groups['all_sprites'] = all_sprites
+                    groups['all_meteors'] = all_meteors
+                    groups['all_bullets'] = all_bullets
+                    groups["all_municao"] = all_municao
+                    groups['all_carros'] = all_carros
                     quantidade_zumbies = 0
                     keys_down = {}
                     score = 0
