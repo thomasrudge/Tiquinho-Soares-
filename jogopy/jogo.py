@@ -135,6 +135,7 @@ class Ship(pygame.sprite.Sprite):
             if self.state == STILL:
                 self.speedy -= JUMP_SIZE
                 self.state = JUMPING
+
                 
 
 class Meteor(pygame.sprite.Sprite):
@@ -292,69 +293,19 @@ class Explosion(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = center
 
-def reset_game():
-    all_sprites = pygame.sprite.Group()
-    all_meteors = pygame.sprite.Group()
-    all_bullets = pygame.sprite.Group()
-    all_carros = pygame.sprite.Group()
-    all_municao = pygame.sprite.Group()
-    # Criando o jogador
-    player = Ship(groups, assets)
-    all_sprites.add(player)
-    municao1 = Municao(assets)
-    all_sprites.add(municao1)
-    all_municao.add(municao1)
-    # Criando os meteoros
-    x = 1
-    for i in range(x):
-        meteor = Meteor(assets)
-        #all_sprites.add(meteor)
-        all_meteors.add(meteor)
-    y = 1
-    for i in range(y):
-        carro1 = carro(assets)
-        all_sprites.add(carro1)
-        all_carros.add(carro1)
-    
 
-    DONE = 0
-    PLAYING = 1
-    EXPLODING = 2
-    state = PLAYING
-    quantidade_zumbies = 0
-    keys_down = {}
-    score = 0
-    lives = 3
-    contadorvidas = 0
-    quantidade_municao = 20
-    return
+def Fgame_over(window):
+    # Limpa a tela
+    window.fill((0, 0, 0))  # Preenche a tela com a cor preta (pode ser substituída pela cor de fundo desejada)
 
-
-def game_over(window):
-    pygame.init()
-    WIDTH = window.get_width()
-    HEIGHT = window.get_height()
-
+    # Exibe a mensagem de "Game Over" no centro da tela
     font = pygame.font.Font(None, 36)
     text = font.render("Game Over", True, (255, 255, 255))
     text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
-    reset_game()
+    window.blit(text, text_rect)
 
-
-    while True:
-        window.fill((0, 0, 0))
-        window.blit(text, text_rect)
-        pygame.display.flip()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-                return
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                return
-
-
+    # Atualiza a tela
+    pygame.display.flip()
 
 # Variável para o ajuste de velocidade
 clock = pygame.time.Clock()
@@ -381,20 +332,17 @@ municao1 = Municao(assets)
 all_sprites.add(municao1)
 all_municao.add(municao1)
 # Criando os meteoros
-x = 1
-for i in range(x):
-    meteor = Meteor(assets)
-    #all_sprites.add(meteor)
-    all_meteors.add(meteor)
-y = 1
-for i in range(y):
-    carro1 = carro(assets)
-    all_sprites.add(carro1)
-    all_carros.add(carro1)
+meteor = Meteor(assets)
+all_meteors.add(meteor)
+
+carro1 = carro(assets)
+all_sprites.add(carro1)
+all_carros.add(carro1)
 
 DONE = 0
 PLAYING = 1
 EXPLODING = 2
+game_over = 3
 state = PLAYING
 quantidade_zumbies = 0
 keys_down = {}
@@ -440,6 +388,31 @@ while state != DONE:
                     #all_sprites.add(meteor)
                     all_meteors.add(meteor)
                     quantidade_zumbies += 1  # Incrementa a quantidade de zumbis extras adicionados
+        if state == game_over:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    all_sprites = pygame.sprite.Group()
+                    all_meteors = pygame.sprite.Group()
+                    all_carros = pygame.sprite.Group()
+                    all_municao = pygame.sprite.Group()
+                    quantidade_zumbies = 0
+                    keys_down = {}
+                    score = 0
+                    lives = 3
+                    contadorvidas = 0
+                    quantidade_municao = 20
+                    player = Ship(groups, assets)
+                    all_sprites.add(player)
+                    meteor = Meteor(assets)
+                    all_meteors.add(meteor)
+                    municao1 = Municao(assets)
+                    all_sprites.add(municao1)
+                    all_municao.add(municao1)
+                    carro1 = carro(assets)
+                    all_sprites.add(carro1)
+                    all_carros.add(carro1)
+                    
+                    state = PLAYING
 
 
     # ----- Atualiza estado do jogo
@@ -520,8 +493,6 @@ while state != DONE:
             keys_down = {}
             explosion_tick = pygame.time.get_ticks()
             explosion_duration = explosao.frame_ticks * len(explosao.explosion_anim) + 400
-        if lives == 0 or quantidade_municao == 0:
-            vini = game_over(window)
             #for event in pygame.event.get():
         # ----- Verifica consequências
                 #if event.type == pygame.KEYUP:
@@ -530,40 +501,43 @@ while state != DONE:
         now = pygame.time.get_ticks()
         if now - explosion_tick > explosion_duration:
             if lives == 0:
-                state = DONE
+                state = game_over
+                Fgame_over(window)
             else:
                 state = PLAYING
                 player = Ship(groups,assets)
                 all_sprites.add(player)
+            
         
 
     # ----- Gera saídas
-    window.fill((0, 0, 0))  # Preenche com a cor branca
-    window.blit(assets['background'], (0, 0))
-    # Desenhando meteoros
-    all_meteors.draw(window)
-    all_sprites.draw(window)
+    if state != game_over:
+        window.fill((0, 0, 0))  # Preenche com a cor branca
+        window.blit(assets['background'], (0, 0))
+        # Desenhando meteoros
+        all_meteors.draw(window)
+        all_sprites.draw(window)
 
-    # Desenhando o score
-    text_surface = assets['score_font'].render("Pontos: {:08d}".format(score), True, (255, 255, 0))
-    text_rect = text_surface.get_rect()
-    text_rect.midtop = (WIDTH / 2,  10)
-    window.blit(text_surface, text_rect)
-    # Desenhando o score
+        # Desenhando o score
+        text_surface = assets['score_font'].render("Pontos: {:08d}".format(score), True, (255, 255, 0))
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (WIDTH / 2,  10)
+        window.blit(text_surface, text_rect)
+        # Desenhando o score
 
-    text_surface = assets['score_font'].render("Municao: {:08d}".format(quantidade_municao), True, (255, 255, 255))
-    text_rect = text_surface.get_rect()
-    text_rect.midtop = (WIDTH / 2,  40)
-    window.blit(text_surface, text_rect)
+        text_surface = assets['score_font'].render("Municao: {:08d}".format(quantidade_municao), True, (255, 255, 255))
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (WIDTH / 2,  40)
+        window.blit(text_surface, text_rect)
 
 
-    # Desenhando as vidas
-    text_surface = assets['score_font'].render(chr(9829) * lives, True, (255, 0, 0))
-    text_rect = text_surface.get_rect()
-    text_rect.bottomleft = ((WIDTH - 100)/ 2, 120 )
-    window.blit(text_surface, text_rect)
+        # Desenhando as vidas
+        text_surface = assets['score_font'].render(chr(9829) * lives, True, (255, 0, 0))
+        text_rect = text_surface.get_rect()
+        text_rect.bottomleft = ((WIDTH - 100)/ 2, 120 )
+        window.blit(text_surface, text_rect)
 
-    pygame.display.update()  # Mostra o novo frame para o jogador
+        pygame.display.update()  # Mostra o novo frame para o jogador
 
 # ===== Finalização =====
 pygame.quit()  # Função do PyGame que finaliza os recursos utilizados
