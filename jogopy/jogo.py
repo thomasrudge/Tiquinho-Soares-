@@ -293,22 +293,43 @@ class Explosion(pygame.sprite.Sprite):
                 self.rect.center = center
 
 def reset_game():
-    all_sprites.empty()
-    all_meteors.empty()
-    all_bullets.empty()
-    all_carros.empty()
-    all_municao.empty()
+    all_sprites = pygame.sprite.Group()
+    all_meteors = pygame.sprite.Group()
+    all_bullets = pygame.sprite.Group()
+    all_carros = pygame.sprite.Group()
+    all_municao = pygame.sprite.Group()
+    # Criando o jogador
     player = Ship(groups, assets)
     all_sprites.add(player)
     municao1 = Municao(assets)
     all_sprites.add(municao1)
     all_municao.add(municao1)
+    # Criando os meteoros
     x = 1
     for i in range(x):
         meteor = Meteor(assets)
-        all_sprites.add(meteor)
+        #all_sprites.add(meteor)
         all_meteors.add(meteor)
-        
+    y = 1
+    for i in range(y):
+        carro1 = carro(assets)
+        all_sprites.add(carro1)
+        all_carros.add(carro1)
+    
+
+    DONE = 0
+    PLAYING = 1
+    EXPLODING = 2
+    state = PLAYING
+    quantidade_zumbies = 0
+    keys_down = {}
+    score = 0
+    lives = 3
+    contadorvidas = 0
+    quantidade_municao = 20
+    return
+
+
 def game_over(window):
     pygame.init()
     WIDTH = window.get_width()
@@ -317,6 +338,7 @@ def game_over(window):
     font = pygame.font.Font(None, 36)
     text = font.render("Game Over", True, (255, 255, 255))
     text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+    reset_game()
 
 
     while True:
@@ -328,10 +350,9 @@ def game_over(window):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
-                    reset_game()
-                    return
+                return
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                return
 
 
 
