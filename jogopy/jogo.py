@@ -385,12 +385,11 @@ while state != DONE:
                 extra_zombies = (score) // 200 - quantidade_zumbies
                 for _ in range(extra_zombies):
                     meteor = Meteor(assets)
-                    #all_sprites.add(meteor)
                     all_meteors.add(meteor)
                     quantidade_zumbies += 1  # Incrementa a quantidade de zumbis extras adicionados
         if state == game_over:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_r:
                     all_sprites = pygame.sprite.Group()
                     all_meteors = pygame.sprite.Group()
                     all_bullets = pygame.sprite.Group()
@@ -427,6 +426,10 @@ while state != DONE:
     # Atualizando a posição dos meteoros
     all_sprites.update()
     all_meteors.update()
+
+    if lives == 0 or quantidade_municao <= 0:
+        state = game_over
+        Fgame_over(window)
 
     if state == PLAYING:
         # Verifica se houve colisão entre tiro e meteoro
@@ -501,20 +504,13 @@ while state != DONE:
             keys_down = {}
             explosion_tick = pygame.time.get_ticks()
             explosion_duration = explosao.frame_ticks * len(explosao.explosion_anim) + 400
-            #for event in pygame.event.get():
-        # ----- Verifica consequências
-                #if event.type == pygame.KEYUP:
-                    #state = DONE 
+
     elif state == EXPLODING:
         now = pygame.time.get_ticks()
         if now - explosion_tick > explosion_duration:
-            if lives == 0:
-                state = game_over
-                Fgame_over(window)
-            else:
-                state = PLAYING
-                player = Ship(groups,assets)
-                all_sprites.add(player)
+            state = PLAYING
+            player = Ship(groups,assets)
+            all_sprites.add(player)
             
         
 
