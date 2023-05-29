@@ -32,7 +32,8 @@ carro_HEIGHT = 60
 onibus_WIDTH = 150
 onibus_HEIGHT = 60
 assets = {}
-assets['background'] = pygame.image.load('jogopy/assets/img/starfield.png').convert()
+assets['background'] = pygame.image.load('jogopy/assets/img/fundo1.jpg').convert_alpha()
+assets['background'] = pygame.transform.scale(assets['background'], (WIDTH, HEIGHT + 50))
 assets['zumbi1_img'] = pygame.image.load('jogopy/assets/img/zumbi1.png').convert_alpha()
 assets['zumbi1_img'] = pygame.transform.scale(assets['zumbi1_img'], (zumbi_WIDTH + 10, zumbi_HEIGHT + 10))
 assets['zumbi2_img'] = pygame.image.load('jogopy/assets/img/zumbi2.png').convert_alpha()
@@ -75,7 +76,8 @@ class Ship(pygame.sprite.Sprite):
         self.image = assets['ship_img']
         self.rect = self.image.get_rect()
         self.rect.centery = HEIGHT/2
-        self.rect.bottom = HEIGHT - 150
+        self.rect.centerx = 80
+        self.rect.bottom = HEIGHT
         self.speedy = 0
         self.groups = groups
         self.assets = assets
@@ -144,7 +146,7 @@ class Meteor(pygame.sprite.Sprite):
         zumbi_images = [assets['zumbi1_img'], assets['zumbi2_img']]
         self.image = random.choice(zumbi_images)
         self.rect = self.image.get_rect()
-        self.rect.y = HEIGHT - 50
+        self.rect.y = HEIGHT - 80
         self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
         self.speedx = random.randint(-9, -2)
 
@@ -232,6 +234,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         # Coloca no lugar inicial definido em x, y do constutor
+        self.rect.centerx = 130
         self.rect.centery = centery
         self.rect.bottom = bottom
         self.speedx = 10  # Velocidade fixa para cima
@@ -371,8 +374,6 @@ while state != DONE:
                     player.jump()
                 if event.key == pygame.K_SPACE:
                     player.shoot()
-                    if quantidade_municao < 0:
-                        state = DONE 
                     quantidade_municao -= 1
             # Verifica se soltou alguma tecla.
             if event.type == pygame.KEYUP:
@@ -388,6 +389,8 @@ while state != DONE:
                     all_meteors.add(meteor)
                     quantidade_zumbies += 1  # Incrementa a quantidade de zumbis extras adicionados
         if state == game_over:
+            if event.type == pygame.QUIT:
+                state = DONE
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     all_sprites = pygame.sprite.Group()
@@ -418,6 +421,8 @@ while state != DONE:
                     carro1 = carro(assets)
                     all_sprites.add(carro1)
                     all_carros.add(carro1)
+                    all_sprites.update()
+                    all_meteors.update()
                     
                     state = PLAYING
 
@@ -426,10 +431,10 @@ while state != DONE:
     # Atualizando a posição dos meteoros
     all_sprites.update()
     all_meteors.update()
-
-    if lives == 0 or quantidade_municao <= 0:
-        state = game_over
-        Fgame_over(window)
+    if state != DONE:
+        if lives == 0 or quantidade_municao <= 0:
+            state = game_over
+            Fgame_over(window)
 
     if state == PLAYING:
         # Verifica se houve colisão entre tiro e meteoro
@@ -497,6 +502,11 @@ while state != DONE:
             # Toca o som da colisão
             assets['boom_sound'].play()
             player.kill()
+            all_meteors = pygame.sprite.Group()
+            for t in range(quantidade_zumbies + 1):
+                mt = Meteor(assets)
+                #all_sprites.add(mt) 
+                all_meteors.add(mt)
             lives -= 1
             explosao = Explosion(player.rect.center, assets)
             all_sprites.add(explosao)
