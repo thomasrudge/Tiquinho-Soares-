@@ -1,11 +1,59 @@
-# ===== Inicialização =====
+
 # ----- Importa e inicia pacotes
 import pygame
 import random
 import time
+import shelve
 
+# Inicialização do Pygame
 pygame.init()
-pygame.mixer.init()
+
+def adicionar_pontuacao(nome, pontuacao):
+    with shelve.open('pontuacoes.db') as db:
+        if nome in db:
+            # Se o jogador já existe, atualiza a pontuação se for maior
+            if pontuacao > db[nome]:
+                db[nome] = pontuacao
+        else:
+            # Se o jogador não existe, adiciona a pontuação
+            db[nome] = pontuacao
+
+
+# Configurações da janel
+largura = 800
+altura = 600
+tela = pygame.display.set_mode((largura, altura))
+pygame.display.set_caption("Nome do Jogador")
+
+# Configurações da entrada de texto
+fonte = pygame.font.Font(None, 32)
+nome = ''
+cor_fundo = (255, 255, 255)
+cor_texto = (0, 0, 0)
+
+# Loop principal
+rodando = True
+while rodando:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            rodando = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                rodando = False
+            elif event.key == pygame.K_BACKSPACE:
+                nome = nome[:-1]
+            else:
+                nome += event.unicode
+
+    # Atualiza a tela
+    tela.fill(cor_fundo)
+    pygame.draw.rect(tela, cor_texto, (200, 200, 400, 50), 2)
+
+    # Renderiza o texto digitado
+    texto_renderizado = fonte.render(nome, True, cor_texto)
+    tela.blit(texto_renderizado, (205, 205))
+
+    pygame.display.flip()
 
 # ----- Gera tela principal
 WIDTH = 800
@@ -69,6 +117,7 @@ JUMPING = 1
 FALLING = 2
 # ----- Inicia estruturas de dados
 # Definindo os novos tipos
+
 class Ship(pygame.sprite.Sprite):
     def __init__(self, groups, assets):
         # Construtor da classe mãe (Sprite).
@@ -295,7 +344,20 @@ class Explosion(pygame.sprite.Sprite):
                 self.image = self.explosion_anim[self.frame]
                 self.rect = self.image.get_rect()
                 self.rect.center = center
-
+rank = []
+ejogador = 0
+def exibir_pontuacoes():
+    with shelve.open('pontuacoes.db') as db:
+        # Cria o ranking com base nas pontuações
+        ranking = sorted(db.items(), key=lambda item: item[1], reverse=True)
+        # Imprime o ranking
+        for i, jogador_pontos in enumerate(ranking, start=1):
+            jogador, pontos = jogador_pontos
+            if jogador == nome:
+                rank.append([i,jogador,pontos])
+            else:
+                rank.append([i,jogador,pontos])
+            
 
 def Fgame_over(window):
     # Limpa a tela
@@ -305,6 +367,18 @@ def Fgame_over(window):
     font = pygame.font.Font(None, 36)
     text = font.render("Game Over", True, (255, 255, 255))
     text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+    window.blit(text, text_rect)
+
+    font = pygame.font.Font(None, 36)
+    text = font.render("Seu ranking:", True, (255, 255, 255))
+    text_rect = text.get_rect(center=(WIDTH / 2, (HEIGHT / 2)+100))
+    window.blit(text, text_rect)
+    for x in rank:
+        if x[1] == nome:
+            posicao = x[0]
+    font = pygame.font.Font(None, 36)
+    text = font.render("{0}º{1}".format(posicao,nome), True, (255, 255, 255))
+    text_rect = text.get_rect(center=(WIDTH / 2, (HEIGHT / 2)+150))
     window.blit(text, text_rect)
 
     # Atualiza a tela
@@ -433,6 +507,8 @@ while state != DONE:
     all_meteors.update()
     if state != DONE:
         if lives == 0 or quantidade_municao <= 0:
+            adicionar_pontuacao(nome, score)
+            exibir_pontuacoes()
             state = game_over
             Fgame_over(window)
 
@@ -555,4 +631,3 @@ while state != DONE:
 
 # ===== Finalização =====
 pygame.quit()  # Função do PyGame que finaliza os recursos utilizados
-
