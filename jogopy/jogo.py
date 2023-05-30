@@ -21,7 +21,7 @@ def adicionar_pontuacao(nome, pontuacao):
 
 # Configurações da janel
 largura = 800
-altura = 600
+altura = 480
 tela = pygame.display.set_mode((largura, altura))
 pygame.display.set_caption("Nome do Jogador")
 
@@ -71,8 +71,8 @@ JUMP_COOLDOWN = 0.5    # Tempo mínimo em segundos entre os pulos
 # ----- Inicia assets
 zumbi_WIDTH = 70
 zumbi_HEIGHT = 58
-SHIP_WIDTH = 90
-SHIP_HEIGHT = 70
+SHIP_WIDTH = 110
+SHIP_HEIGHT = 90
 municao_WIDTH = 30
 municao_HEIGHT = 40
 carro_WIDTH = 100
@@ -86,7 +86,7 @@ assets['zumbi1_img'] = pygame.image.load('jogopy/assets/img/zumbi1.png').convert
 assets['zumbi1_img'] = pygame.transform.scale(assets['zumbi1_img'], (zumbi_WIDTH + 10, zumbi_HEIGHT + 10))
 assets['zumbi2_img'] = pygame.image.load('jogopy/assets/img/zumbi2.png').convert_alpha()
 assets['zumbi2_img'] = pygame.transform.scale(assets['zumbi2_img'], (zumbi_WIDTH + 20, zumbi_HEIGHT + 20))
-assets['ship_img'] = pygame.image.load('jogopy/assets/img/boneco.png').convert_alpha()
+assets['ship_img'] = pygame.image.load('jogopy/assets/img/boneco2.png').convert_alpha()
 assets['ship_img'] = pygame.transform.scale(assets['ship_img'], (SHIP_WIDTH, SHIP_HEIGHT))
 assets['bullet_img'] = pygame.image.load('jogopy/assets/img/laserRed16.png').convert_alpha()
 assets["municao_img"] = pygame.image.load('jogopy/assets/img/municao.png').convert_alpha()
@@ -376,9 +376,15 @@ def Fgame_over(window):
     for x in rank:
         if x[1] == nome:
             posicao = x[0]
+            pontuacao = x[2]
     font = pygame.font.Font(None, 36)
     text = font.render("{0}º{1}".format(posicao,nome), True, (255, 255, 255))
     text_rect = text.get_rect(center=(WIDTH / 2, (HEIGHT / 2)+150))
+    window.blit(text, text_rect)
+
+    font = pygame.font.Font(None, 36)
+    text = font.render("Seu recorde: {0}".format(pontuacao), True, (255, 255, 255))
+    text_rect = text.get_rect(center=(WIDTH / 2, (HEIGHT / 2)-100))
     window.blit(text, text_rect)
 
     # Atualiza a tela
@@ -546,11 +552,11 @@ while state != DONE:
                 all_municao.add(mu)
                 if score < 1000:
                     quantidade_municao += 5
-                if score >= 1000 and score < 2000:
+                if score >= 1000 and score < 1500:
                     quantidade_municao += 10
-                if score >= 2000 and score < 3000:
+                if score >= 1500 and score < 2000:
                     quantidade_municao += 15
-                if score >= 3000:
+                if score >= 2000 and score < 2500:
                     quantidade_municao += 20
 
         
