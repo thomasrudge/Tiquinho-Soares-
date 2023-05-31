@@ -31,6 +31,10 @@ nome = ''
 cor_fundo = (255, 255, 255)
 cor_texto = (0, 0, 0)
 
+# Carrega a imagem de fundo
+imagem_fundo = pygame.image.load("jogopy/assets/img/telainicial.png")
+imagem_fundo = pygame.transform.scale(imagem_fundo, (largura, altura))
+
 # Loop principal
 rodando = True
 while rodando:
@@ -45,13 +49,15 @@ while rodando:
             else:
                 nome += event.unicode
 
-    # Atualiza a tela
-    tela.fill(cor_fundo)
-    pygame.draw.rect(tela, cor_texto, (200, 200, 400, 50), 2)
+    # Desenha a imagem de fundo na tela
+    tela.blit(imagem_fundo, (0, 0))
+
+    # Desenha o retângulo de entrada de texto
+    #pygame.draw.rect(tela, cor_texto, (200, 200, 400, 50), 2)
 
     # Renderiza o texto digitado
     texto_renderizado = fonte.render(nome, True, cor_texto)
-    tela.blit(texto_renderizado, (205, 205))
+    tela.blit(texto_renderizado, (330, 230))
 
     pygame.display.flip()
 
@@ -80,6 +86,7 @@ carro_HEIGHT = 60
 onibus_WIDTH = 150
 onibus_HEIGHT = 60
 assets = {}
+assets['tela'] = pygame.image.load('jogopy/assets/img/telainicial.png').convert_alpha()
 assets['background'] = pygame.image.load('jogopy/assets/img/fundo1.jpg').convert_alpha()
 assets['background'] = pygame.transform.scale(assets['background'], (WIDTH, HEIGHT + 50))
 assets['zumbi1_img'] = pygame.image.load('jogopy/assets/img/zumbi1.png').convert_alpha()
@@ -285,7 +292,7 @@ class Bullet(pygame.sprite.Sprite):
         # Coloca no lugar inicial definido em x, y do constutor
         self.rect.centerx = 130
         self.rect.centery = centery
-        self.rect.bottom = bottom
+        self.rect.bottom = bottom - 30
         self.speedx = 10  # Velocidade fixa para cima
 
     def update(self):
