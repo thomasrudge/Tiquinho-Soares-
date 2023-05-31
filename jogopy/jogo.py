@@ -65,7 +65,7 @@ while rodando:
 WIDTH = 800
 HEIGHT = 480
 window = pygame.display.set_mode((WIDTH, HEIGHT + 100))
-pygame.display.set_caption('Navinha')
+pygame.display.set_caption('sobreviventes do python')
 TILE_SIZE = 40 
 # Define a aceleração da gravidade
 GRAVITY = 3.5 
@@ -230,7 +230,7 @@ class final(pygame.sprite.Sprite):
         self.groups = groups
         self.assets = assets
         self.last_shot = pygame.time.get_ticks()
-        self.shoot_ticks = 250
+        self.shoot_ticks = 500
 
     def update(self):
         self.rect.y += self.speedy
@@ -262,7 +262,7 @@ class Bola(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = start_x
         self.rect.bottom = start_y+ 100 # Definir a posição inicial da bola em relação ao objeto final
-        self.speedx = -20
+        self.speedx = -13
         self.speedy = random.randint(-5, 5)  # Velocidade vertical da bola igual à velocidade do jogador
 
     def update(self):
@@ -596,7 +596,7 @@ while state != DONE:
     if c == 2:
         all_final.update()
         all_sprites.update()
-    if score > 3000 and c == 1:
+    if score > 1000 and c == 1:
         all_sprites = pygame.sprite.Group()
         all_meteors = pygame.sprite.Group()
         all_bullets = pygame.sprite.Group()
@@ -646,6 +646,7 @@ while state != DONE:
             explosao = Explosion(final1.rect.center, assets)
             all_sprites.add(explosao)
             if dano == 50:
+                live = 2
                 assets['destroy_sound'].play()
                 explosao = Explosion(meteor.rect.center, assets)
                 all_sprites.add(explosao)
@@ -655,6 +656,9 @@ while state != DONE:
                 groups['all_carros'] = all_carros
                 quantidade_municao = xmuni
                 c = 3
+                carro1 = carro(assets)
+                all_sprites.add(carro1)
+                all_carros.add(carro1)
                 municao1 = Municao(assets)
                 all_sprites.add(municao1)
                 all_municao.add(municao1)
@@ -682,7 +686,8 @@ while state != DONE:
             contadorvidas += 20
             if contadorvidas == 600:
                 contadorvidas = 0
-                lives += 1
+                if score < 3500:
+                    lives += 1
 
         # Verifica se houve colisão entre nave e meteoro
 
