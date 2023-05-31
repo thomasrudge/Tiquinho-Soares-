@@ -429,15 +429,18 @@ def exibir_pontuacoes():
 def Fgame_over(window):
     # Limpa a tela
     window.fill((0, 0, 0))  # Preenche a tela com a cor preta (pode ser substituída pela cor de fundo desejada)
-
+    imagem_fundo = pygame.image.load("jogopy/assets/img/telafinal.png")
+    imagem_fundo = pygame.transform.scale(imagem_fundo, (800, 600))
+    # Desenha a imagem de fundo na tela
+    tela.blit(imagem_fundo, (0, 0))
     # Exibe a mensagem de "Game Over" no centro da tela
     font = pygame.font.Font(None, 36)
-    text = font.render("Game Over", True, (255, 255, 255))
+    text = font.render("Game Over", True, (0, 0, 0))
     text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
     window.blit(text, text_rect)
 
     font = pygame.font.Font(None, 36)
-    text = font.render("Seu ranking:", True, (255, 255, 255))
+    text = font.render("Seu ranking:", True, (0, 0, 0))
     text_rect = text.get_rect(center=(WIDTH / 2, (HEIGHT / 2)+100))
     window.blit(text, text_rect)
     for x in rank:
@@ -445,12 +448,12 @@ def Fgame_over(window):
             posicao = x[0]
             pontuacao = x[2]
     font = pygame.font.Font(None, 36)
-    text = font.render("{0}º{1}".format(posicao,nome), True, (255, 255, 255))
+    text = font.render("{0}º{1}".format(posicao,nome), True, (0, 0, 0))
     text_rect = text.get_rect(center=(WIDTH / 2, (HEIGHT / 2)+150))
     window.blit(text, text_rect)
 
     font = pygame.font.Font(None, 36)
-    text = font.render("Seu recorde: {0}".format(pontuacao), True, (255, 255, 255))
+    text = font.render("Seu recorde: {0}".format(pontuacao), True, (0, 0, 0))
     text_rect = text.get_rect(center=(WIDTH / 2, (HEIGHT / 2)-100))
     window.blit(text, text_rect)
 
