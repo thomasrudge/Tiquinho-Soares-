@@ -86,6 +86,10 @@ carro_HEIGHT = 60
 onibus_WIDTH = 150
 onibus_HEIGHT = 60
 assets = {}
+assets['final'] = pygame.image.load('jogopy/assets/img/final.gif').convert_alpha()
+assets['final'] = pygame.transform.scale(assets['final'], (zumbi_WIDTH + 200, zumbi_HEIGHT + 200))
+assets['bola'] = pygame.image.load('jogopy/assets/img/bola.png').convert_alpha()
+assets['bola'] = pygame.transform.scale(assets['bola'], (zumbi_WIDTH + 30, zumbi_HEIGHT + 30))
 assets['tela'] = pygame.image.load('jogopy/assets/img/telainicial.png').convert_alpha()
 assets['background'] = pygame.image.load('jogopy/assets/img/fundo1.jpg').convert_alpha()
 assets['background'] = pygame.transform.scale(assets['background'], (WIDTH, HEIGHT + 50))
@@ -210,7 +214,7 @@ class Meteor(pygame.sprite.Sprite):
         self.rect.x += self.speedx
 
         if self.rect.right < 0:
-            self.rect.y = HEIGHT - 50
+            self.rect.y = HEIGHT - 80
             self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
             self.speedx = random.randint(-9, -2)
 
@@ -218,20 +222,57 @@ class Meteor(pygame.sprite.Sprite):
 class final(pygame.sprite.Sprite):
     def __init__(self, assets):
         pygame.sprite.Sprite.__init__(self)
-        zumbi_images = [assets['zumbi1_img'], assets['zumbi2_img']]
-        self.image = random.choice(zumbi_images)
+        self.image = assets['final']
         self.rect = self.image.get_rect()
-        self.rect.y = HEIGHT - 80
-        self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
-        self.speedx = random.randint(-9, -2)
+        self.rect.y = HEIGHT - 250
+        self.rect.x = WIDTH - 250
+        self.speedy = 0
+        self.groups = groups
+        self.assets = assets
+        self.last_shot = pygame.time.get_ticks()
+        self.shoot_ticks = 500
+
+    def update(self):
+        self.rect.y += self.speedy
+        if self.rect.y < 100 or self.rect.y > 300:
+            self.rect.y = HEIGHT - 250
+            self.rect.centerx = WIDTH // 2
+            self.speedy = 0
+
+    def shoot(self):
+        now = pygame.time.get_ticks()
+        elapsed_ticks = now - self.last_shot
+
+        if elapsed_ticks > self.shoot_ticks:
+            self.last_shot = now
+            # Ajuste a posição de partida da bola em relação ao objeto final
+            bola_start_x = self.rect.centerx
+            bola_start_y = self.rect.y
+            new_Bola = Bola(self.assets, bola_start_x, bola_start_y, player.speedy)
+            self.groups['all_sprites'].add(new_Bola)
+            self.groups['all_bola'].add(new_Bola)
+            self.assets['pew_sound'].play()
+
+
+class Bola(pygame.sprite.Sprite):
+    def __init__(self, assets, start_x, start_y, player_speedy):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = assets['bola']
+        self.rect = self.image.get_rect()
+        self.rect.centerx = start_x
+        self.rect.bottom = start_y+ 100 # Definir a posição inicial da bola em relação ao objeto final
+        self.speedx = -10
+        self.speedy = random.randint(-5, 5)  # Velocidade vertical da bola igual à velocidade do jogador
 
     def update(self):
         self.rect.x += self.speedx
+        self.rect.y += self.speedy
 
-        if self.rect.right < 0:
-            self.rect.y = HEIGHT - 50
-            self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
-            self.speedx = random.randint(-9, -2)
+        if self.rect.x < 0:
+            self.kill()
+
+
 
 class Municao(pygame.sprite.Sprite):
     active_municao = 0  # Variável para controlar o número de municao ativos
@@ -426,6 +467,8 @@ all_meteors = pygame.sprite.Group()
 all_bullets = pygame.sprite.Group()
 all_carros = pygame.sprite.Group()
 all_municao = pygame.sprite.Group()
+all_final = pygame.sprite.Group()
+all_bola = pygame.sprite.Group()
 
 groups = {}
 groups['all_sprites'] = all_sprites
@@ -433,6 +476,8 @@ groups['all_meteors'] = all_meteors
 groups['all_bullets'] = all_bullets
 groups["all_municao"] = all_municao
 groups['all_carros'] = all_carros
+groups['all_final'] = all_final
+groups['all_bola'] = all_bola
 
 # Criando o jogador
 player = Ship(groups, assets)
@@ -459,7 +504,7 @@ score = 0
 lives = 2
 contadorvidas = 0
 quantidade_municao = 20
-
+c = 1
 # ===== Loop principal =====
 pygame.mixer.music.play(loops=-1)
 while state != DONE:
@@ -480,6 +525,8 @@ while state != DONE:
                     player.jump()
                 if event.key == pygame.K_SPACE:
                     player.shoot()
+                    if c == 2:
+                        final1.shoot()
                     quantidade_municao -= 1
             # Verifica se soltou alguma tecla.
             if event.type == pygame.KEYUP:
@@ -532,20 +579,60 @@ while state != DONE:
                     
                     state = PLAYING
 
-
     # ----- Atualiza estado do jogo
     # Atualizando a posição dos meteoros
-    all_sprites.update()
-    all_meteors.update()
+    if c == 1:
+        all_sprites.update()
+        all_meteors.update()
+    if c == 2:
+        all_final.update()
+        all_sprites.update()
+    if score > 200 and c == 1:
+        all_sprites = pygame.sprite.Group()
+        all_meteors = pygame.sprite.Group()
+        all_bullets = pygame.sprite.Group()
+        all_carros = pygame.sprite.Group()
+        all_municao = pygame.sprite.Group()
+        groups['all_sprites'] = all_sprites
+        groups['all_meteors'] = all_meteors
+        groups['all_bullets'] = all_bullets
+        groups["all_municao"] = all_municao
+        groups['all_carros'] = all_carros
+        c = 2
+        dano = 0
+        lives = 5
+        contadorvidas = 0
+        quantidade_municao = 2000
+        player = Ship(groups, assets)
+        all_sprites.add(player)
+        final1 = final(assets)
+        all_final.add(final1)
+        all_sprites.update()
+        all_final.update()
+
+        
+
     if state != DONE:
-        if lives == 0 or quantidade_municao <= 0:
+        if lives <= 0 or quantidade_municao <= 0:
             adicionar_pontuacao(nome, score)
             exibir_pontuacoes()
             state = game_over
             Fgame_over(window)
 
     if state == PLAYING:
-        # Verifica se houve colisão entre tiro e meteoro
+        hits = pygame.sprite.spritecollide(player, all_bola, True)
+        if len(hits) > 0:
+            lives -= 1
+        # Verificar colisões entre os objetos "final1" e "all_bullets"
+        hits = pygame.sprite.groupcollide(all_final, all_bullets, False,True)
+
+# Verificar se algum objeto final foi atingido por mais de 5 objetos
+        if len(hits) > 0:
+            dano += 1
+            if dano ==5:
+                lives -= 10
+ 
+    
         hits = pygame.sprite.groupcollide(all_meteors, all_bullets, True, True)
         for meteor in hits: # As chaves são os elementos do primeiro grupo (meteoros) que colidiram com alguma bala
             # O meteoro e destruido e precisa ser recriado
@@ -635,6 +722,7 @@ while state != DONE:
         window.fill((0, 0, 0))  # Preenche com a cor branca
         window.blit(assets['background'], (0, 0))
         # Desenhando meteoros
+        all_final.draw(window)
         all_meteors.draw(window)
         all_sprites.draw(window)
 
