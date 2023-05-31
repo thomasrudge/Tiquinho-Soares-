@@ -230,7 +230,7 @@ class final(pygame.sprite.Sprite):
         self.groups = groups
         self.assets = assets
         self.last_shot = pygame.time.get_ticks()
-        self.shoot_ticks = 500
+        self.shoot_ticks = 250
 
     def update(self):
         self.rect.y += self.speedy
@@ -262,7 +262,7 @@ class Bola(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = start_x
         self.rect.bottom = start_y+ 100 # Definir a posição inicial da bola em relação ao objeto final
-        self.speedx = -10
+        self.speedx = -20
         self.speedy = random.randint(-5, 5)  # Velocidade vertical da bola igual à velocidade do jogador
 
     def update(self):
@@ -546,6 +546,9 @@ while state != DONE:
                 state = DONE
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
+                    c = 1
+                    all_bola = pygame.sprite.Group()
+                    all_final = pygame.sprite.Group()
                     all_sprites = pygame.sprite.Group()
                     all_meteors = pygame.sprite.Group()
                     all_bullets = pygame.sprite.Group()
@@ -558,6 +561,9 @@ while state != DONE:
                     groups['all_bullets'] = all_bullets
                     groups["all_municao"] = all_municao
                     groups['all_carros'] = all_carros
+                    groups["all_municao"] = all_municao
+                    groups['all_bola'] = all_bola
+                    groups['all_final'] = all_final
                     quantidade_zumbies = 0
                     keys_down = {}
                     score = 0
@@ -581,13 +587,13 @@ while state != DONE:
 
     # ----- Atualiza estado do jogo
     # Atualizando a posição dos meteoros
-    if c == 1:
+    if c != 2:
         all_sprites.update()
         all_meteors.update()
     if c == 2:
         all_final.update()
         all_sprites.update()
-    if score > 200 and c == 1:
+    if score > 3000 and c == 1:
         all_sprites = pygame.sprite.Group()
         all_meteors = pygame.sprite.Group()
         all_bullets = pygame.sprite.Group()
@@ -602,7 +608,8 @@ while state != DONE:
         dano = 0
         lives = 5
         contadorvidas = 0
-        quantidade_municao = 2000
+        xmuni = quantidade_municao
+        quantidade_municao = 200
         player = Ship(groups, assets)
         all_sprites.add(player)
         final1 = final(assets)
@@ -622,6 +629,9 @@ while state != DONE:
     if state == PLAYING:
         hits = pygame.sprite.spritecollide(player, all_bola, True)
         if len(hits) > 0:
+            assets['destroy_sound'].play()
+            explosao = Explosion(player.rect.center, assets)
+            all_sprites.add(explosao)
             lives -= 1
         # Verificar colisões entre os objetos "final1" e "all_bullets"
         hits = pygame.sprite.groupcollide(all_final, all_bullets, False,True)
@@ -629,8 +639,25 @@ while state != DONE:
 # Verificar se algum objeto final foi atingido por mais de 5 objetos
         if len(hits) > 0:
             dano += 1
-            if dano ==5:
-                lives -= 10
+            assets['destroy_sound'].play()
+            explosao = Explosion(final1.rect.center, assets)
+            all_sprites.add(explosao)
+            if dano == 50:
+                assets['destroy_sound'].play()
+                explosao = Explosion(meteor.rect.center, assets)
+                all_sprites.add(explosao)
+                all_bola = pygame.sprite.Group()
+                all_final = pygame.sprite.Group()
+                groups["all_municao"] = all_municao
+                groups['all_carros'] = all_carros
+                quantidade_municao = xmuni
+                c = 3
+                municao1 = Municao(assets)
+                all_sprites.add(municao1)
+                all_municao.add(municao1)
+                for t in range(quantidade_zumbies + 1):
+                    mt = Meteor(assets)
+                    all_meteors.add(mt)
  
     
         hits = pygame.sprite.groupcollide(all_meteors, all_bullets, True, True)
@@ -669,8 +696,10 @@ while state != DONE:
                     quantidade_municao += 15
                 if score >= 1500 and score < 2000:
                     quantidade_municao += 20
-                if score >= 2000 and score < 2500:
+                if score >= 2000 and score < 3000:
                     quantidade_municao += 25
+                if score >= 3000 and score < 5000:
+                    quantidade_municao += 40
 
         
         
