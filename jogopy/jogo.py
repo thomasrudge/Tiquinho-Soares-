@@ -215,6 +215,24 @@ class Meteor(pygame.sprite.Sprite):
             self.speedx = random.randint(-9, -2)
 
 
+class final(pygame.sprite.Sprite):
+    def __init__(self, assets):
+        pygame.sprite.Sprite.__init__(self)
+        zumbi_images = [assets['zumbi1_img'], assets['zumbi2_img']]
+        self.image = random.choice(zumbi_images)
+        self.rect = self.image.get_rect()
+        self.rect.y = HEIGHT - 80
+        self.rect.x = WIDTH  # Posição fixa no eixo x para os zumbis
+        self.speedx = random.randint(-9, -2)
+
+    def update(self):
+        self.rect.x += self.speedx
+
+        if self.rect.right < 0:
+            self.rect.y = HEIGHT - 50
+            self.rect.x = WIDTH  # Reinicia a posição do zumbi no eixo x
+            self.speedx = random.randint(-9, -2)
+
 class Municao(pygame.sprite.Sprite):
     active_municao = 0  # Variável para controlar o número de municao ativos
 
@@ -255,23 +273,24 @@ class carro(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x += self.speedx
+        if score < 2000:
 
-        if self.rect.right < 0:
-            self.rect.y = HEIGHT - 60
-            self.rect.x = WIDTH  # Reinicia a posição do carro no eixo x
-            self.speedx = random.randint(-16, -9)
+            if self.rect.right < 0:
+                self.rect.y = HEIGHT - 60
+                self.rect.x = WIDTH  # Reinicia a posição do carro no eixo x
+                self.speedx = random.randint(-16, -9)
 
-        self.spawn_timer += 5.0 / FPS
+            self.spawn_timer += 5.0 / FPS
 
-        if score > carro.pontos_para_onibus and self.image == carro.imagem_carro:
-            extra = 1
-            for _ in range(extra):
-                self.image = carro.imagem_onibus
+            if score > carro.pontos_para_onibus and self.image == carro.imagem_carro:
+                extra = 1
+                for _ in range(extra):
+                    self.image = carro.imagem_onibus
 
-        if self.spawn_timer >= self.spawn_interval and carro.active_carros == 0:
-            self.spawn_timer = 0.0
-            self.rect.y = HEIGHT - 50
-            carro.active_carros += 1  # Incrementa o número de carros ativos
+            if self.spawn_timer >= self.spawn_interval and carro.active_carros == 0:
+                self.spawn_timer = 0.0
+                self.rect.y = HEIGHT - 50
+                carro.active_carros += 1  # Incrementa o número de carros ativos
 
     def kill(self):
         carro.active_carros -= 1  # Decrementa o número de carros ativos
@@ -437,7 +456,7 @@ state = PLAYING
 quantidade_zumbies = 0
 keys_down = {}
 score = 0
-lives = 3
+lives = 2
 contadorvidas = 0
 quantidade_municao = 20
 
@@ -544,7 +563,7 @@ while state != DONE:
             # Ganhou pontos!
             score += 20
             contadorvidas += 20
-            if contadorvidas == 400:
+            if contadorvidas == 600:
                 contadorvidas = 0
                 lives += 1
 
@@ -560,11 +579,11 @@ while state != DONE:
                 if score < 1000:
                     quantidade_municao += 5
                 if score >= 1000 and score < 1500:
-                    quantidade_municao += 10
-                if score >= 1500 and score < 2000:
                     quantidade_municao += 15
-                if score >= 2000 and score < 2500:
+                if score >= 1500 and score < 2000:
                     quantidade_municao += 20
+                if score >= 2000 and score < 2500:
+                    quantidade_municao += 25
 
         
         
@@ -577,7 +596,6 @@ while state != DONE:
             all_meteors = pygame.sprite.Group()
             for t in range(quantidade_zumbies + 1):
                 mt = Meteor(assets)
-                #all_sprites.add(mt) 
                 all_meteors.add(mt)
             lives -= 1
             explosao = Explosion(player.rect.center, assets)
@@ -594,7 +612,6 @@ while state != DONE:
             all_meteors = pygame.sprite.Group()
             for t in range(quantidade_zumbies + 1):
                 mt = Meteor(assets)
-                #all_sprites.add(mt) 
                 all_meteors.add(mt)
             lives -= 1
             explosao = Explosion(player.rect.center, assets)
