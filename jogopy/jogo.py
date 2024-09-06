@@ -28,8 +28,8 @@ pygame.display.set_caption("Nome do Jogador")
 # Configurações da entrada de texto
 fonte = pygame.font.Font(None, 32)
 nome = ''
-cor_fundo = (255, 255, 255)
-cor_texto = (0, 0, 0)
+branco = (255, 255, 255)
+preto = (0, 0, 0)
 
 # Carrega a imagem de fundo
 imagem_fundo = pygame.image.load("jogopy/assets/img/telainicial.png")
@@ -56,7 +56,7 @@ while rodando:
     #pygame.draw.rect(tela, cor_texto, (200, 200, 400, 50), 2)
 
     # Renderiza o texto digitado
-    texto_renderizado = fonte.render(nome, True, cor_texto)
+    texto_renderizado = fonte.render(nome, True, branco)
     tela.blit(texto_renderizado, (330, 230))
 
     pygame.display.flip()
@@ -428,14 +428,15 @@ def exibir_pontuacoes():
 
 def Fgame_over(window):
     # Limpa a tela
-    window.fill((0, 0, 0))  # Preenche a tela com a cor preta (pode ser substituída pela cor de fundo desejada)
+    preto = (0,0,0)
+    window.fill(preto)  # Preenche a tela com a cor preta (pode ser substituída pela cor de fundo desejada)
     imagem_fundo = pygame.image.load("jogopy/assets/img/telafinal.png")
     imagem_fundo = pygame.transform.scale(imagem_fundo, (800, 600))
     # Desenha a imagem de fundo na tela
     tela.blit(imagem_fundo, (0, 0))
     # Exibe a mensagem de "Game Over" no centro da tela
     font = pygame.font.Font(None, 36)
-    text = font.render("Game Over", True, (0, 0, 0))
+    text = font.render("Game Over", True, preto)
     text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
     window.blit(text, text_rect)
 
@@ -448,12 +449,12 @@ def Fgame_over(window):
             posicao = x[0]
             pontuacao = x[2]
     font = pygame.font.Font(None, 36)
-    text = font.render("{0}º{1}".format(posicao,nome), True, (0, 0, 0))
+    text = font.render("{0}º{1}".format(posicao,nome), True, preto)
     text_rect = text.get_rect(center=(WIDTH / 2, (HEIGHT / 2)+150))
     window.blit(text, text_rect)
 
     font = pygame.font.Font(None, 36)
-    text = font.render("Seu recorde: {0}".format(pontuacao), True, (0, 0, 0))
+    text = font.render("Seu recorde: {0}".format(pontuacao), True, preto)
     text_rect = text.get_rect(center=(WIDTH / 2, (HEIGHT / 2)-100))
     window.blit(text, text_rect)
 
@@ -693,21 +694,31 @@ while state != DONE:
 
         hits2 = pygame.sprite.spritecollide(player,all_municao, True)
 
+        def qt_municao(score , qt_municao):
+
+
+
+            if score < 1000:
+                    qt_municao += 5
+            elif score >= 1000 and score < 1500:
+                qt_municao += 15
+            elif score >= 1500 and score < 2000:
+                qt_municao += 20
+            elif score >= 2000 and score < 3000:
+                qt_municao += 25
+            elif score >= 3000 and score < 5000:
+                qt_municao += 40
+
+            return qt_municao
+
+
         if len(hits2) > 0:
             for t in range(len(hits2)):
                 mu = Municao(assets)
                 all_sprites.add(mu) 
                 all_municao.add(mu)
-                if score < 1000:
-                    quantidade_municao += 5
-                if score >= 1000 and score < 1500:
-                    quantidade_municao += 15
-                if score >= 1500 and score < 2000:
-                    quantidade_municao += 20
-                if score >= 2000 and score < 3000:
-                    quantidade_municao += 25
-                if score >= 3000 and score < 5000:
-                    quantidade_municao += 40
+                qt_municao(score , quantidade_municao)
+                
 
         
         
@@ -756,7 +767,7 @@ while state != DONE:
 
     # ----- Gera saídas
     if state != game_over:
-        window.fill((0, 0, 0))  # Preenche com a cor branca
+        window.fill(preto)  # Preenche com a cor branca
         window.blit(assets['background'], (0, 0))
         # Desenhando meteoros
         all_final.draw(window)
